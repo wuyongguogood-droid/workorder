@@ -61,7 +61,8 @@
    model: 'deepseek-chat',
    apiKey: '',
    baseUrl: '',
-   pasteUrl: 'https://catbox.moe/user/api.php'
+   pasteUrl: 'https://catbox.moe/user/api.php',
+   githubToken: ''
  };
  
  /* ===== App state ===== */
@@ -192,6 +193,7 @@
    document.getElementById('setting-api-key').value = map.apiKey || '';
    document.getElementById('setting-base-url').value = map.baseUrl || '';
    document.getElementById('setting-paste-url').value = map.pasteUrl || DEFAULT_SETTINGS.pasteUrl;
+   document.getElementById('setting-github-token').value = map.githubToken || '';
  }
 
  async function saveSettings() {
@@ -200,13 +202,15 @@
      model: document.getElementById('setting-model').value.trim() || DEFAULT_SETTINGS.model,
      apiKey: document.getElementById('setting-api-key').value.trim(),
      baseUrl: document.getElementById('setting-base-url').value.trim().replace(/\/+$/, ''),
-     pasteUrl: document.getElementById('setting-paste-url').value.trim() || DEFAULT_SETTINGS.pasteUrl
+     pasteUrl: document.getElementById('setting-paste-url').value.trim() || DEFAULT_SETTINGS.pasteUrl,
+     githubToken: document.getElementById('setting-github-token').value.trim()
    };
    await dbPut('settings', { key: 'apiBase', value: map.apiBase });
    await dbPut('settings', { key: 'model', value: map.model });
    await dbPut('settings', { key: 'apiKey', value: map.apiKey });
    await dbPut('settings', { key: 'baseUrl', value: map.baseUrl });
    await dbPut('settings', { key: 'pasteUrl', value: map.pasteUrl });
+   await dbPut('settings', { key: 'githubToken', value: map.githubToken });
    state.settings = map;
    showToast('已保存');
  }
@@ -1197,6 +1201,10 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
  }
  
  async function uploadToPaste(payload) {
+   const token = (state.settings && state.settings.githubToken) || '';
+   if (token) {
+     return await uploadToGist(payload, token);
+   }
    const url = (state.settings && state.settings.pasteUrl) || DEFAULT_SETTINGS.pasteUrl;
    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
    const file = new File([blob], 'task-' + Date.now() + '.json', { type: 'application/json' });
@@ -1209,6 +1217,33 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
      throw new Error(res.status + ' ' + t.slice(0, 80));
    }
    return (await res.text()).trim();
+ }
+
+ async function uploadToGist(payload, token) {
+   const res = await fetch('https://api.github.com/gists', {
+     method: 'POST',
+     headers: {
+       'Authorization': 'Bearer ' + token,
+       'Content-Type': 'application/json',
+       'Accept': 'application/vnd.github+json'
+     },
+     body: JSON.stringify({
+       description: 'workorder-dispatch-' + Date.now(),
+       public: true,
+       files: {
+         'data.json': { content: JSON.stringify(payload) }
+       }
+     })
+   });
+   if (!res.ok) {
+     const t = await res.text();
+     throw new Error(res.status + ' ' + t.slice(0, 120));
+   }
+   const data = await res.json();
+   if (!data.files || !data.files['data.json'] || !data.files['data.json'].raw_url) {
+     throw new Error('Gist 返回异常');
+   }
+   return data.files['data.json'].raw_url;
  }
  
  async function renderQR(text) {

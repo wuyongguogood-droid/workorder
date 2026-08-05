@@ -718,9 +718,14 @@
        <div class="form-row stack">
          <span class="label">图床 API</span>
          <input type="text" id="setting-paste-url" placeholder="https://catbox.moe/user/api.php" style="font-size:14px">
-         <div class="helper-text" style="padding:4px 0 0">默认 catbox.moe，可换成自建或别的服务</div>
+         <div class="helper-text" style="padding:4px 0 0">默认 catbox.moe，国内可能连不上。建议改用下面 GitHub Gist</div>
        </div>
-     </div>
+       <div class="form-row stack">
+         <span class="label">GitHub Token</span>
+         <input type="text" id="setting-github-token" placeholder="ghp_..." style="font-family:monospace;font-size:13px">
+         <div class="helper-text" style="padding:4px 0 0">填了则用 Gist 上传，留空则用上面的图床。Token 需要勾 <b>gist</b> 权限。在 https://github.com/settings/tokens 编辑现有 token 或新建</div>
+        </div>
+      </div>
      <div class="card-title">数据</div>
      <div class="card">
        <div class="form-row" onclick="confirmClearHistory()">
