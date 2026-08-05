@@ -1250,11 +1250,20 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
    const container = document.getElementById('qr-canvas');
    container.innerHTML = '';
    return new Promise((res, rej) => {
-     QRCode.toCanvas(text, { width: 240, margin: 1, color: { dark: '#000', light: '#fff' } }, (err, canvas) => {
-       if (err) return rej(err);
-       container.appendChild(canvas);
-       res(canvas);
-     });
+     try {
+       new QRCode(container, {
+         text: text,
+         width: 240,
+         height: 240,
+         colorDark: '#000',
+         colorLight: '#fff',
+         correctLevel: QRCode.CorrectLevel.M
+       });
+       const canvas = container.querySelector('canvas');
+       res(canvas || container);
+     } catch (e) {
+       rej(e);
+     }
    });
  }
  
