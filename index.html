@@ -1,0 +1,792 @@
+ <!doctype html>
+ <html lang="zh-CN">
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="default">
+ <meta name="apple-mobile-web-app-title" content="工单助手">
+ <title>工单助手</title>
+ <link rel="stylesheet" href="styles.css">
+ </head>
+ <body>
+ <div class="app" id="app">
+
+ <!-- ========== Status Bar (decorative) ========== -->
+ <div class="status-bar">
+   <span id="clockText">9:41</span>
+   <span class="right">
+     <svg viewBox="0 0 16 12" fill="currentColor"><path d="M1 9h2v2H1zm4-2h2v4H5zm4-2h2v6H9zm4-2h2v8h-2z"/></svg>
+     <svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4A8 8 0 0 0 1.6 6L0 4.4 4 0l1.6 1.6A9.4 9.4 0 0 1 8 1.2 9.4 9.4 0 0 1 14.8 6l-1.6 1.6A8 8 0 0 0 8 2.4zM8 6.4a3.2 3.2 0 0 0-2.3 5.4L4 13.6l1.6 1.6L8 13l2.4 2.2L12 13.6l-1.7-1.8A3.2 3.2 0 0 0 8 6.4z"/></svg>
+     <svg viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2" stroke="currentColor"/><rect x="3" y="3" width="14" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+   </span>
+ </div>
+
+ <!-- ========== Home Page ========== -->
+ <section class="page active" id="page-home">
+   <div class="nav-bar">
+     <div style="width:60px"></div>
+     <div class="nav-title">工单助手</div>
+     <button class="nav-btn primary" style="justify-content:flex-end" onclick="showPage('page-settings')">
+       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+     </button>
+   </div>
+   <div class="large-title-wrap">
+     <div class="large-title">做什么？</div>
+   </div>
+   <div class="home-grid">
+     <div class="home-card" onclick="enterTaskForm()">
+       <div class="icon-bubble blue">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+       </div>
+       <div class="meta">
+         <h3>任务卡生成</h3>
+         <p>为员工生成可分享的任务指令</p>
+       </div>
+       <span class="chev">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+       </span>
+     </div>
+     <div class="home-card" onclick="enterReviewForm()">
+       <div class="icon-bubble pink">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+       </div>
+       <div class="meta">
+         <h3>买家秀评语</h3>
+         <p>为商品生成真实感的评价</p>
+       </div>
+       <span class="chev">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+       </span>
+     </div>
+     <div class="home-card" id="dispatch-card" style="background:linear-gradient(135deg,#FFF5E6,#FFE4B5);display:none" onclick="enterDispatch()">
+       <div class="icon-bubble" style="background:linear-gradient(135deg,#FF9500,#FF6B00)">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+       </div>
+       <div class="meta">
+         <h3>生成派发二维码</h3>
+         <p id="dispatch-card-sub">基于最近一次任务卡和评语</p>
+       </div>
+       <span class="chev">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+       </span>
+     </div>
+   </div>
+ </section>
+
+ <!-- ========== Form A: Task Card ========== -->
+ <section class="page" id="page-form-task">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">取消</button>
+     <div class="nav-title">任务卡</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="page-body">
+     <div class="card-title">商家信息</div>
+     <div class="card">
+       <div class="form-row">
+         <span class="label">店铺</span>
+         <div class="value" style="text-align:right">
+           <div class="chip-input" style="background:transparent;padding:0">
+             <input type="text" id="task-store" placeholder="输入店铺名" style="text-align:right">
+             <button class="icon-btn" data-confirm-input="task-store" data-term-type="store">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+             </button>
+           </div>
+         </div>
+       </div>
+       <div class="form-row">
+         <span class="label">商品名称</span>
+         <div class="value" style="text-align:right">
+           <div class="chip-input" style="background:transparent;padding:0">
+             <input type="text" id="task-product" placeholder="输入商品名" style="text-align:right">
+             <button class="icon-btn" data-confirm-input="task-product" data-term-type="product">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+             </button>
+           </div>
+         </div>
+       </div>
+     </div>
+     <div id="task-store-chips" class="chip-list" style="padding:0 32px 8px"></div>
+     <div id="task-product-chips" class="chip-list" style="padding:0 32px 8px"></div>
+
+     <div class="card-title">封面图</div>
+     <div class="card">
+       <div class="card-section">
+         <div class="hero-img" id="task-cover-preview" onclick="pickCover()">
+           <div class="upload-prompt">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21"/></svg>
+             <span>点击上传或选择历史</span>
+           </div>
+         </div>
+         <div class="img-thumb-grid" id="cover-history"></div>
+         <input type="file" accept="image/*" id="cover-input" class="file-input">
+       </div>
+     </div>
+
+     <div class="card-title">搜索关键词</div>
+     <div class="card">
+       <div class="form-row stack">
+         <span class="label">建议词</span>
+         <div class="chip-input">
+           <input type="text" id="task-kw-suggest" placeholder="主要搜索词">
+           <button class="icon-btn" data-confirm-input="task-kw-suggest" data-term-type="keyword">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+           </button>
+         </div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">备选 1</span>
+         <div class="chip-input">
+           <input type="text" id="task-kw-alt1" placeholder="备选关键词 1">
+           <button class="icon-btn" data-confirm-input="task-kw-alt1" data-term-type="keyword">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+           </button>
+         </div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">备选 2</span>
+         <div class="chip-input">
+           <input type="text" id="task-kw-alt2" placeholder="备选关键词 2">
+           <button class="icon-btn" data-confirm-input="task-kw-alt2" data-term-type="keyword">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+           </button>
+         </div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">备选 3</span>
+         <div class="chip-input">
+           <input type="text" id="task-kw-alt3" placeholder="备选关键词 3">
+           <button class="icon-btn" data-confirm-input="task-kw-alt3" data-term-type="keyword">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+           </button>
+         </div>
+       </div>
+     </div>
+     <div id="task-kw-chips" class="chip-list" style="padding:0 32px 8px"></div>
+
+     <div class="card-title">营销动作</div>
+     <div class="card">
+       <div class="check-row" data-action="cart" onclick="toggleAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">添加至购物车</span>
+       </div>
+       <div class="check-row" data-action="fav" onclick="toggleAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">收藏商品</span>
+       </div>
+       <div class="check-row" data-action="follow" onclick="toggleAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">关注店铺</span>
+       </div>
+       <div class="check-row" data-action="compare" onclick="toggleAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">货比两家</span>
+       </div>
+       <div class="check-row" data-action="chat" onclick="toggleAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">与客服互动</span>
+       </div>
+       <div class="check-row" data-action="custom" onclick="toggleCustomAction(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <label class="switch" onclick="event.stopPropagation()">
+           <input type="checkbox" id="action-custom-toggle" onchange="toggleCustomActionField()">
+           <span class="slider"></span>
+         </label>
+       </div>
+       <div class="form-row hidden" id="action-custom-row" style="background:var(--fill-4)">
+         <input type="text" id="action-custom-text" placeholder="输入自定义动作">
+       </div>
+     </div>
+
+     <div class="card-title">价格调整</div>
+     <div class="card">
+       <div class="form-row">
+         <span class="label">是否改价</span>
+         <label class="switch">
+           <input type="checkbox" id="price-toggle" onchange="togglePrice()">
+           <span class="slider"></span>
+         </label>
+       </div>
+       <div class="hidden" id="price-options">
+         <div class="form-row" data-price="20" onclick="pickPrice(this)">
+           <span class="label">金额</span>
+           <div class="value row-between">
+             <span>¥20</span>
+             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           </div>
+         </div>
+         <div class="form-row" data-price="30" onclick="pickPrice(this)">
+           <span class="label">金额</span>
+           <div class="value row-between">
+             <span>¥30</span>
+             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           </div>
+         </div>
+         <div class="form-row" data-price="50" onclick="pickPrice(this)">
+           <span class="label">金额</span>
+           <div class="value row-between">
+             <span>¥50</span>
+             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           </div>
+         </div>
+         <div class="form-row" data-price="100" onclick="pickPrice(this)">
+           <span class="label">金额</span>
+           <div class="value row-between">
+             <span>¥100</span>
+             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           </div>
+         </div>
+         <div class="form-row" data-price="custom" onclick="pickPrice(this)">
+           <span class="label">金额</span>
+           <div class="value row-between">
+             <input type="number" id="price-custom" class="input-affix" placeholder="自定义金额" onclick="event.stopPropagation();pickPrice(this.closest('.form-row'))" oninput="onPriceCustomInput()">
+             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <div class="card-title">下单要求（可选）</div>
+     <div class="card">
+       <div class="form-row">
+         <span class="label">启用</span>
+         <label class="switch">
+           <input type="checkbox" id="sku-toggle" onchange="toggleSku()">
+           <span class="slider"></span>
+         </label>
+       </div>
+       <div class="hidden" id="sku-section">
+         <div class="form-row stack">
+           <span class="label">定位图片</span>
+           <div class="hero-img" id="task-sku-img-preview" style="aspect-ratio:16/9;max-height:160px" onclick="pickSkuImg()">
+             <div class="upload-prompt">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+               <span>上传定位图</span>
+             </div>
+           </div>
+           <input type="file" accept="image/*" id="sku-img-input" class="file-input">
+         </div>
+         <div class="form-row stack">
+           <span class="label">文字描述</span>
+           <textarea id="task-sku-text" placeholder="如：深棕瓶身带金标那款，第三件 0 元"></textarea>
+         </div>
+         <div class="helper-text" style="padding:0 16px 12px">图片和文字至少填一项</div>
+       </div>
+     </div>
+   </div>
+   <div class="action-bar">
+     <button class="btn btn-primary" onclick="generateTaskCard()">生成任务卡</button>
+   </div>
+ </section>
+
+ <!-- ========== Result A: Task Card ========== -->
+ <section class="page" id="page-result-task">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">完成</button>
+     <div class="nav-title">任务卡预览</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="result-wrap">
+     <div class="result-card" id="task-card-img-wrap"></div>
+     <div class="result-text" id="task-card-text">
+       <button class="copy-btn" onclick="copyText('task-card-text-content')">复制</button>
+       <div id="task-card-text-content"></div>
+     </div>
+     <div style="display:flex;gap:8px;margin-top:16px">
+       <button class="btn btn-secondary" style="flex:1" onclick="saveTaskCardImg()">保存图片</button>
+       <button class="btn btn-primary" style="flex:1" onclick="enterReviewForm()">继续生成评语</button>
+     </div>
+   </div>
+ </section>
+
+ <!-- ========== Form B: Review Generation ========== -->
+ <section class="page" id="page-form-review">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">取消</button>
+     <div class="nav-title">买家秀评语</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="page-body">
+     <div class="card-title">需求概括</div>
+     <div class="card">
+       <div class="form-row stack">
+         <textarea id="rev-summary" maxlength="60" placeholder="内容必须包括产品完整的市场名称。例如：欧莱雅伊诺雅染膏自然棕色"></textarea>
+         <div class="helper-text" style="padding:4px 0 0"><span id="rev-summary-count">0</span>/60</div>
+       </div>
+     </div>
+
+     <div class="card-title-row">
+      <span class="t">评价字数</span>
+      <button class="btn-tiny" onclick="randomLen()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+        随机
+      </button>
+    </div>
+     <div class="card">
+       <div class="check-row" data-len="10" onclick="pickLen(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">10 ± 3 字</span>
+       </div>
+       <div class="check-row" data-len="20" onclick="pickLen(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">20 ± 3 字</span>
+       </div>
+       <div class="check-row" data-len="30" onclick="pickLen(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">30 ± 3 字</span>
+       </div>
+       <div class="check-row" data-len="40" onclick="pickLen(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">40 ± 3 字</span>
+       </div>
+       <div class="check-row" data-len="custom" onclick="pickLen(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <input type="number" id="rev-len-custom" placeholder="字数" style="width:80px;text-align:right" onclick="event.stopPropagation();pickLen(document.querySelector('[data-len=custom]'))">
+       </div>
+     </div>
+
+     <div class="card-title-row">
+      <span class="t">必含要素（必选）</span>
+      <button class="btn-tiny" onclick="randomKw()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+        随机
+      </button>
+    </div>
+     <div class="card" id="rev-keywords">
+       <div class="check-row" data-kw="正品" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">正品</span>
+       </div>
+       <div class="check-row" data-kw="已经再用了" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">已经再用了</span>
+       </div>
+       <div class="check-row" data-kw="发货很快" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">发货很快</span>
+       </div>
+       <div class="check-row" data-kw="买了好多回了" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">买了好多回了</span>
+       </div>
+       <div class="check-row" data-kw="质量好" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">质量好</span>
+       </div>
+       <div class="check-row" data-kw="效果很好" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">效果很好</span>
+       </div>
+       <div class="check-row" data-kw="包装精美" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">包装精美</span>
+       </div>
+       <div class="check-row" data-kw="客服很有耐心" onclick="toggleKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">客服很有耐心</span>
+       </div>
+       <div class="check-row" data-kw="__custom__" onclick="toggleCustomKw(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <label class="switch" onclick="event.stopPropagation()">
+           <input type="checkbox" id="kw-custom-toggle" onchange="toggleCustomKwField()">
+           <span class="slider"></span>
+         </label>
+       </div>
+       <div class="form-row hidden" id="kw-custom-row" style="background:var(--fill-4)">
+         <input type="text" id="kw-custom-text" placeholder="输入自定义关键词">
+       </div>
+     </div>
+
+     <div class="card-title-row">
+      <span class="t">语句风格（可选）</span>
+      <button class="btn-tiny" onclick="randomStyle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+        随机
+      </button>
+    </div>
+     <div class="card" id="rev-styles">
+       <div class="check-row" data-style="热情" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">热情</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="感谢" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">感谢</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="夸赞" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">夸赞</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="一般" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">一般</span>
+       </div>
+       <div class="check-row" data-style="网络" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">网络</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="抽象" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">抽象</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="幽默调侃" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">幽默调侃</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="真诚朴实" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">真诚朴实</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="种草安利" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">种草安利</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="简洁干练" onclick="toggleStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">简洁干练</span>
+         <div class="segmented" style="width:180px" onclick="event.stopPropagation()">
+           <button class="seg active" data-int="default">默认</button>
+           <button class="seg" data-int="low">低</button>
+           <button class="seg" data-int="mid">中</button>
+           <button class="seg" data-int="high">高</button>
+         </div>
+       </div>
+       <div class="check-row" data-style="__custom__" onclick="toggleCustomStyle(this)">
+         <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <label class="switch" onclick="event.stopPropagation()">
+           <input type="checkbox" id="style-custom-toggle" onchange="toggleCustomStyleField()">
+           <span class="slider"></span>
+         </label>
+       </div>
+       <div class="form-row hidden" id="style-custom-row" style="background:var(--fill-4)">
+         <input type="text" id="style-custom-text" placeholder="输入自定义风格">
+       </div>
+     </div>
+
+     <div class="card-title-row">
+      <span class="t">客户身份（可选）</span>
+      <button class="btn-tiny" onclick="randomId()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+        随机
+      </button>
+    </div>
+     <div class="card" id="rev-identity">
+       <div class="check-row" data-id="学生党" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">学生党</span>
+       </div>
+       <div class="check-row" data-id="上班族" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">上班族</span>
+       </div>
+       <div class="check-row" data-id="宝妈" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">宝妈</span>
+       </div>
+       <div class="check-row" data-id="情侣" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">情侣</span>
+       </div>
+       <div class="check-row" data-id="送礼党" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">送礼党</span>
+       </div>
+       <div class="check-row" data-id="中老年用户" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">中老年用户</span>
+       </div>
+       <div class="check-row" data-id="成分党" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">成分党 / 敏感肌</span>
+       </div>
+       <div class="check-row" data-id="复购老客户" onclick="pickId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+       <span class="label-text">复购老客户</span>
+      </div>
+      <div class="check-row" data-id="不强调身份" onclick="pickId(this)">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="label-text">不强调身份</span>
+      </div>
+      <div class="check-row" data-id="__custom__" onclick="pickCustomId(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <input type="text" id="id-custom-text" placeholder="输入身份" style="width:120px;text-align:right" onclick="event.stopPropagation();pickCustomId(this.closest('.check-row'))">
+       </div>
+     </div>
+
+     <div class="card-title">目标产品（可选）</div>
+     <div class="card" id="rev-target">
+       <div class="check-row" data-target="欧莱雅染膏" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">欧莱雅染膏</span>
+       </div>
+       <div class="check-row" data-target="施华蔻染膏" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">施华蔻染膏</span>
+       </div>
+       <div class="check-row" data-target="欧莱雅发膜" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">欧莱雅发膜</span>
+       </div>
+       <div class="check-row" data-target="施华蔻发膜" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">施华蔻发膜</span>
+       </div>
+       <div class="check-row" data-target="欧莱雅magic touch补色喷雾" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">欧莱雅 magic touch 补色喷雾</span>
+       </div>
+       <div class="check-row" data-target="洗发水/护发素" onclick="pickTarget(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">洗发水 / 护发素</span>
+       </div>
+       <div class="check-row" data-target="__custom__" onclick="pickTargetCustom(this)">
+         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <span class="label-text">自定义</span>
+         <input type="text" id="target-custom-text" placeholder="输入目标产品" style="width:140px;text-align:right" onclick="event.stopPropagation();pickTargetCustom(this.closest('.check-row'))">
+       </div>
+     </div>
+
+     <div class="card-title">配图（可选）</div>
+     <div class="card">
+       <div class="card-section">
+         <div class="hero-img" id="rev-img-preview" style="aspect-ratio:4/3" onclick="pickReviewImg()">
+           <div class="upload-prompt">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+             <span>上传评价配图</span>
+           </div>
+         </div>
+         <input type="file" accept="image/*" id="rev-img-input" class="file-input">
+       </div>
+     </div>
+   </div>
+   <div class="action-bar">
+     <button class="btn btn-primary" onclick="generateReview()">生成评语</button>
+   </div>
+ </section>
+
+ <!-- ========== Result B: Review ========== -->
+ <section class="page" id="page-result-review">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">完成</button>
+     <div class="nav-title">评语预览</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="result-wrap">
+     <div class="result-text" id="review-text">
+       <button class="copy-btn" onclick="copyText('review-text-content')">复制</button>
+       <div id="review-text-content" class="editable-review" contenteditable="true" spellcheck="false" oninput="onReviewEdit(this.innerText)"></div>
+       <div class="helper-text" style="padding:6px 0 0;text-align:right"><span id="review-edit-count">0</span> 字</div>
+     </div>
+     <div style="display:flex;gap:8px;margin-top:16px">
+       <button class="btn btn-secondary" style="flex:1" onclick="regenerateReview()">重新生成</button>
+       <button class="btn btn-primary" style="flex:1" onclick="enterDispatch()">生成派发二维码</button>
+     </div>
+   </div>
+ </section>
+
+ <!-- ========== Dispatch: Generate QR ========== -->
+ <section class="page" id="page-dispatch">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">取消</button>
+     <div class="nav-title">派发二维码</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="page-body">
+     <div class="card">
+       <div class="card-section">
+         <div style="font-size:15px;font-weight:600;margin-bottom:8px">即将打包</div>
+         <div class="helper-text" style="padding:0">任务卡图片 + 任务说明文本 + 评语文本 + 评价配图（如果有）</div>
+       </div>
+     </div>
+     <div class="card-title">来源</div>
+     <div class="card" id="dispatch-source">
+       <div class="form-row" id="dispatch-task-row">
+         <span class="label">任务卡</span>
+         <span class="value text-tertiary" id="dispatch-task-info">未选择</span>
+       </div>
+       <div class="form-row" id="dispatch-review-row">
+         <span class="label">评语</span>
+         <span class="value text-tertiary" id="dispatch-review-info">未选择</span>
+       </div>
+     </div>
+     <div class="action-bar" style="position:static;margin-top:16px">
+       <button class="btn btn-primary" id="dispatch-btn" onclick="generateDispatchQR()">上传并生成二维码</button>
+     </div>
+     <div id="dispatch-result" class="hidden" style="margin-top:24px">
+       <div class="qr-box">
+         <div id="qr-canvas"></div>
+         <div class="qr-meta" id="qr-url-text"></div>
+       </div>
+       <div style="display:flex;gap:8px;margin-top:16px">
+         <button class="btn btn-secondary" style="flex:1" onclick="saveQRImg()">保存二维码</button>
+         <button class="btn btn-primary" style="flex:1" onclick="copyQRUrl()">复制链接</button>
+       </div>
+       <div class="helper-text" style="padding:16px 0 0;text-align:center">二维码有效期 24 小时，员工扫码后看到完整任务和评语</div>
+     </div>
+   </div>
+ </section>
+
+ <!-- ========== Settings Page ========== -->
+ <section class="page" id="page-settings">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">
+       <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+     </button>
+     <div class="nav-title">设置</div>
+     <button class="nav-btn primary" onclick="saveSettings()">保存</button>
+   </div>
+   <div class="page-body">
+     <div class="card-title">AI 服务</div>
+     <div class="card">
+       <div class="form-row stack">
+         <span class="label">API 地址</span>
+         <input type="text" id="setting-api-base" placeholder="https://api.deepseek.com/v1" style="font-size:14px">
+         <div class="helper-text" style="padding:4px 0 0">支持 OpenAI 兼容接口。火山方舟填 https://ark.cn-beijing.volces.com/api/v3</div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">模型</span>
+         <input type="text" id="setting-model" placeholder="deepseek-chat" style="font-size:14px">
+         <div class="helper-text" style="padding:4px 0 0">火山方舟填接入点 ID，例如 ep-xxxxxxxxxxxxx</div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">API Key</span>
+         <input type="text" id="setting-api-key" placeholder="sk-..." style="font-family:monospace;font-size:14px">
+         <div class="helper-text" style="padding:4px 0 0">存于本地不上传</div>
+       </div>
+     </div>
+     <div class="card-title">部署</div>
+     <div class="card">
+       <div class="form-row stack">
+         <span class="label">GitHub Pages 地址</span>
+         <input type="text" id="setting-base-url" placeholder="https://xxx.github.io/yyy" style="font-size:14px">
+         <div class="helper-text" style="padding:4px 0 0">员工扫码后看到的查看页地址</div>
+       </div>
+       <div class="form-row stack">
+         <span class="label">图床 API</span>
+         <input type="text" id="setting-paste-url" placeholder="https://catbox.moe/user/api.php" style="font-size:14px">
+         <div class="helper-text" style="padding:4px 0 0">默认 catbox.moe，可换成自建或别的服务</div>
+       </div>
+     </div>
+     <div class="card-title">数据</div>
+     <div class="card">
+       <div class="form-row" onclick="confirmClearHistory()">
+         <span class="label text-blue">清空历史记录</span>
+       </div>
+       <div class="form-row" onclick="confirmClearAll()">
+         <span class="label" style="color:var(--system-red)">清空所有数据</span>
+       </div>
+     </div>
+     <div class="card-title">关于</div>
+     <div class="card">
+       <div class="form-row">
+         <span class="label">版本</span>
+         <span class="value">1.0.0</span>
+       </div>
+     </div>
+   </div>
+ </section>
+
+ <!-- ========== History Page ========== -->
+ <section class="page" id="page-history">
+   <div class="nav-bar">
+     <button class="nav-btn" onclick="showPage('page-home')">
+       <svg width="12" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+     </button>
+     <div class="nav-title">历史记录</div>
+     <div style="width:60px"></div>
+   </div>
+   <div class="page-body" style="padding:0 16px 32px">
+     <div class="segmented" style="margin:12px 0">
+       <button class="seg active" data-tab="task" onclick="switchHistoryTab(this)">任务卡</button>
+       <button class="seg" data-tab="review" onclick="switchHistoryTab(this)">评语</button>
+     </div>
+     <div id="history-task-list"></div>
+     <div id="history-review-list" class="hidden"></div>
+   </div>
+ </section>
+
+ </div>
+
+ <!-- ========== Bottom Sheet (term history) ========== -->
+ <div class="sheet-mask" id="sheet-mask" onclick="closeSheet()"></div>
+ <div class="sheet" id="term-sheet">
+   <div class="sheet-handle"></div>
+   <div class="sheet-title" id="term-sheet-title">历史词条</div>
+   <div class="sheet-body" id="term-sheet-body"></div>
+ </div>
+
+ <!-- ========== Toast ========== -->
+ <div class="toast" id="toast"></div>
+
+ <!-- ========== Loading ========== -->
+ <div class="loading-overlay" id="loading">
+   <div class="spinner"></div>
+   <div id="loading-text">处理中...</div>
+ </div>
+
+ <!-- ========== Lightbox ========== -->
+ <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+   <button class="close">&times;</button>
+   <img id="lightbox-img">
+ </div>
+
+ <!-- ========== Scripts ========== -->
+ <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+ <script src="app.js"></script>
+ </body>
+ </html>
