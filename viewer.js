@@ -48,14 +48,20 @@
    copyTextToClipboard(el.innerText);
  }
 
- /* 复制图片到剪贴板（用 ClipboardItem） */
+ /* 复制图片到剪贴板（必须转 PNG，ClipboardItem.write 不支持 image/jpeg） */
  async function copyImageToClipboard(dataUrl) {
    if (!dataUrl) return;
    try {
-     const res = await fetch(dataUrl);
-     const blob = await res.blob();
-     const type = blob.type || 'image/png';
-     await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
+     const img = new Image();
+     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = dataUrl; });
+     const c = document.createElement('canvas');
+     c.width = img.naturalWidth;
+     c.height = img.naturalHeight;
+     c.getContext('2d').drawImage(img, 0, 0);
+     const pngBlob = await new Promise((res, rej) => {
+       c.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/png');
+     });
+     await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
      showToast('已复制图片');
    } catch (e) {
      console.error(e);
