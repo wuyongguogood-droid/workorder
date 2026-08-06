@@ -48,25 +48,32 @@
    copyTextToClipboard(el.innerText);
  }
 
- /* 复制图片到剪贴板（必须转 PNG，ClipboardItem.write 不支持 image/jpeg） */
+ /* 复制图片到剪贴板（必须转 PNG）。
+    安卓 WeChat / 老内核浏览器对 ClipboardItem 写图支持很差，
+    失败时降级为：打开大图让用户长按保存到相册。 */
  async function copyImageToClipboard(dataUrl) {
    if (!dataUrl) return;
-   try {
-     const img = new Image();
-     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = dataUrl; });
-     const c = document.createElement('canvas');
-     c.width = img.naturalWidth;
-     c.height = img.naturalHeight;
-     c.getContext('2d').drawImage(img, 0, 0);
-     const pngBlob = await new Promise((res, rej) => {
-       c.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/png');
-     });
-     await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
-     showToast('已复制图片');
-   } catch (e) {
-     console.error(e);
-     showToast('复制失败：' + (e.message || '浏览器不支持'));
+   if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+     try {
+       const img = new Image();
+       await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = dataUrl; });
+       const c = document.createElement('canvas');
+       c.width = img.naturalWidth;
+       c.height = img.naturalHeight;
+       c.getContext('2d').drawImage(img, 0, 0);
+       const pngBlob = await new Promise((res, rej) => {
+         c.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/png');
+       });
+       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
+       showToast('已复制图片，去聊天窗口粘贴');
+       return;
+     } catch (e) {
+       console.warn('clipboard.write failed, fallback to long-press:', e);
+     }
    }
+   /* 降级：打开大图，用户长按图片保存到相册 */
+   openLightbox(dataUrl);
+   showToast('请长按图片保存到相册');
  }
 
  function copyCoverImg() {
