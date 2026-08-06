@@ -844,12 +844,12 @@ function stepLen(delta) {
  
    return `<div class="task-card-preview" style="width:360px;margin:0">
      <div class="tc-header">
-       <div class="tc-cover" style="background-image:url(${data.cover ? data.cover.dataUrl : ''})"></div>
        <div style="flex:1;min-width:0">
          <div class="tc-title">${escapeHtml(data.product)}</div>
          <div class="tc-store">${escapeHtml(data.store)}</div>
        </div>
      </div>
+     ${data.cover && data.cover.dataUrl ? `<img class="tc-cover-img" src="${data.cover.dataUrl}">` : ''}
      <div class="tc-section">
        <div class="tc-section-title">搜索关键词</div>
        <div class="tc-keywords">${keywordsHTML}</div>

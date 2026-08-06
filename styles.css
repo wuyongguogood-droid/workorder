@@ -1108,14 +1108,14 @@ input[type=number] { -moz-appearance: textfield; }
    gap: 12px;
    margin-bottom: 14px;
  }
- .task-card-preview .tc-cover {
-   width: 84px;
-   height: 84px;
-   border-radius: 12px;
+ .task-card-preview .tc-cover-img {
+   width: 100%;
+   aspect-ratio: 16 / 9;
+   object-fit: cover;
    background: #f0f0f5;
-   background-size: cover;
-   background-position: center;
-   flex-shrink: 0;
+   border-radius: 12px;
+   margin: 8px 0 14px;
+   display: block;
  }
  .task-card-preview .tc-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
  .task-card-preview .tc-store { font-size: 12px; color: #6e6e73; margin-top: 4px; }
@@ -1204,6 +1204,33 @@ input[type=number] { -moz-appearance: textfield; }
    opacity: 0.9;
  }
  .viewer-body { padding: 16px 16px 32px; }
+/* 店铺/商品行的复制按钮 */
+ .copy-btn {
+   flex-shrink: 0;
+   font-size: 13px;
+   color: var(--system-blue);
+   background: rgba(0, 122, 255, 0.1);
+   border: 0;
+   padding: 4px 10px;
+   border-radius: 6px;
+   cursor: pointer;
+   -webkit-tap-highlight-color: transparent;
+   font-family: inherit;
+ }
+ .copy-btn:active { background: rgba(0, 122, 255, 0.2); }
+
+ /* 标签列表（搜索关键词） */
+ .tag-list {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 6px;
+ }
+ .tag-hint {
+   font-size: 12px;
+   color: var(--tertiary-label);
+   margin-top: 6px;
+ }
+
  .viewer-section {
    background: #fff;
    border-radius: 16px;
@@ -1218,14 +1245,18 @@ input[type=number] { -moz-appearance: textfield; }
    letter-spacing: 0.06em;
    margin-bottom: 10px;
  }
- .viewer-cover {
+ .viewer-cover-img {
    width: 100%;
    aspect-ratio: 1 / 1;
-   border-radius: 12px;
+   object-fit: cover;
    background: var(--fill-2);
-   background-size: cover;
-   background-position: center;
-   margin-bottom: 12px;
+   border-radius: 12px;
+   margin: 4px 0 10px;
+   cursor: zoom-in;
+   display: block;
+   -webkit-user-select: none;
+   user-select: none;
+   -webkit-touch-callout: default;
  }
  .viewer-meta { font-size: 15px; line-height: 1.5; }
  .viewer-meta .row { display: flex; gap: 8px; padding: 6px 0; }
