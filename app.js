@@ -347,72 +347,81 @@
    await dbDelete('terms', id);
  }
  
- /* ===== Sheet (term history picker) ===== */
- let _sheetTargetInputId = null;
- 
- function showTermSheet(type, targetInputId) {
-   _sheetTargetInputId = targetInputId;
-   const titleMap = {
-     store: '历史店铺',
-     product: '历史商品',
-     keyword: '历史搜索词'
-   };
-   document.getElementById('term-sheet-title').textContent = titleMap[type] || '历史词条';
-   renderTermSheet(type);
-   document.getElementById('sheet-mask').classList.add('show');
-   document.getElementById('term-sheet').classList.add('show');
- }
- 
- async function renderTermSheet(type) {
-   const body = document.getElementById('term-sheet-body');
-   body.innerHTML = '';
-   const terms = await getRecentTerms(type, 5);
-   if (!terms.length) {
-     body.innerHTML = '<div class="empty">暂无历史词条</div>';
-     return;
-   }
-   const card = document.createElement('div');
-   card.className = 'card';
-   card.style.margin = '12px 16px';
-   terms.forEach((t, i) => {
-     const row = document.createElement('div');
-     row.className = 'form-row';
-     if (i > 0) row.style.borderTop = '0.5px solid var(--hairline)';
-     row.style.cursor = 'pointer';
-     const txt = document.createElement('span');
-     txt.className = 'label-text';
-     txt.style.cssText = 'flex:1;font-size:17px';
-     txt.textContent = t.value;
-     row.appendChild(txt);
-     const del = document.createElement('button');
-     del.className = 'nav-btn';
-     del.style.color = 'var(--system-red)';
-     del.style.minWidth = '44px';
-     del.textContent = '删除';
-     del.onclick = async (e) => {
-       e.stopPropagation();
-       await deleteTerm(t.id);
-       renderTermSheet(type);
-     };
-     row.appendChild(del);
-     row.onclick = () => {
-       const input = document.getElementById(_sheetTargetInputId);
-       if (input) {
-         input.value = t.value;
-         input.dispatchEvent(new Event('input', { bubbles: true }));
-       }
-       closeSheet();
-     };
-     card.appendChild(row);
-   });
-   body.appendChild(card);
- }
- 
- function closeSheet() {
-   document.getElementById('sheet-mask').classList.remove('show');
-   document.getElementById('term-sheet').classList.remove('show');
-   _sheetTargetInputId = null;
- }
+/* ===== Browser-style history dropdown ===== */
+let _dropdownInputEl = null;
+
+function showHistoryDropdown(type, inputEl) {
+  _dropdownInputEl = inputEl;
+  const dropdown = document.getElementById('history-dropdown');
+  const body = document.getElementById('history-dropdown-body');
+  getRecentTerms(type, 5).then(terms => {
+    body.innerHTML = '';
+    if (!terms.length) {
+      const empty = document.createElement('div');
+      empty.className = 'history-dropdown-empty';
+      empty.textContent = '暂无历史词条';
+      body.appendChild(empty);
+    } else {
+      terms.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'history-dropdown-item';
+        const txt = document.createElement('span');
+        txt.className = 'hdi-text';
+        txt.textContent = t.value;
+        item.appendChild(txt);
+        const del = document.createElement('button');
+        del.className = 'hdi-del';
+        del.textContent = '删除';
+        del.onmousedown = (ev) => { ev.preventDefault(); ev.stopPropagation(); };
+        del.ontouchstart = (ev) => { ev.preventDefault(); ev.stopPropagation(); };
+        del.onclick = async (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          await deleteTerm(t.id);
+          showHistoryDropdown(type, inputEl);
+        };
+        item.appendChild(del);
+        item.onmousedown = (ev) => {
+          if (ev.target === del) return;
+          ev.preventDefault();
+          inputEl.value = t.value;
+          inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+          hideHistoryDropdown();
+        };
+        item.ontouchstart = (ev) => {
+          if (ev.target === del) return;
+          ev.preventDefault();
+          inputEl.value = t.value;
+          inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+          hideHistoryDropdown();
+        };
+        body.appendChild(item);
+      });
+    }
+    positionDropdown(inputEl, dropdown);
+    dropdown.hidden = false;
+  });
+}
+
+function positionDropdown(inputEl, dropdown) {
+  const rect = inputEl.getBoundingClientRect();
+  const dw = Math.max(rect.width, 200);
+  const dh = 240;
+  let top = rect.bottom + 4;
+  if (top + dh > window.innerHeight) top = Math.max(8, rect.top - dh - 4);
+  let left = rect.left;
+  if (left + dw > window.innerWidth) left = Math.max(8, window.innerWidth - dw - 8);
+  dropdown.style.left = left + 'px';
+  dropdown.style.top = top + 'px';
+  dropdown.style.width = dw + 'px';
+  dropdown.style.maxHeight = Math.min(dh, window.innerHeight - top - 8) + 'px';
+}
+
+function hideHistoryDropdown() {
+  const dropdown = document.getElementById('history-dropdown');
+  if (dropdown) dropdown.hidden = true;
+  _dropdownInputEl = null;
+}
  
  function escapeHtml(s) {
    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -459,10 +468,11 @@
    e.target.value = '';
  }
  
- function setCoverPreview(dataUrl) {
-   const el = document.getElementById('task-cover-preview');
-   el.innerHTML = `<img src="${dataUrl}">`;
- }
+function setCoverPreview(dataUrl) {
+  const el = document.getElementById('task-cover-preview');
+  el.innerHTML = `<img src="${dataUrl}">`;
+  el.classList.add('has-img');
+}
  
  async function loadCoverHistory() {
    const wrap = document.getElementById('cover-history');
@@ -483,44 +493,130 @@
    });
  }
  
- /* ===== SKU image handling ===== */
- function pickSkuImg() {
-   document.getElementById('sku-img-input').click();
- }
- async function onSkuImgSelected(e) {
-   const file = e.target.files[0];
-   if (!file) return;
-   const dataUrl = await readFileAsDataURL(file);
-   const compressed = await compressImage(dataUrl, 800, 0.85);
-   state.skuImage = { dataUrl: compressed };
-   document.getElementById('task-sku-img-preview').innerHTML = `<img src="${compressed}">`;
-   e.target.value = '';
- }
- 
- /* ===== Review image handling ===== */
- function pickReviewImg() {
-   document.getElementById('rev-img-input').click();
- }
- async function onReviewImgSelected(e) {
-   const file = e.target.files[0];
-   if (!file) return;
-   const dataUrl = await readFileAsDataURL(file);
-   const compressed = await compressImage(dataUrl, 1200, 0.85);
-   state.reviewImage = { dataUrl: compressed };
-   document.getElementById('rev-img-preview').innerHTML = `<img src="${compressed}">`;
-   e.target.value = '';
- }
+/* ===== SKU image handling ===== */
+function pickSkuImg() {
+  document.getElementById('sku-img-input').click();
+}
+async function onSkuImgSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const dataUrl = await readFileAsDataURL(file);
+  const compressed = await compressImage(dataUrl, 800, 0.85);
+  const blob = dataURLtoBlob(compressed);
+  const hash = await hashBlob(blob);
+  const all = await dbGetAll('skuImages');
+  let rec = all.find(c => c.hash === hash);
+  if (!rec) {
+    await dbAdd('skuImages', { hash, dataUrl: compressed, usedAt: Date.now() });
+    rec = { hash, dataUrl: compressed, usedAt: Date.now() };
+  } else {
+    rec.usedAt = Date.now();
+    await dbPut('skuImages', rec);
+  }
+  state.skuImage = rec;
+  const skuEl = document.getElementById('task-sku-img-preview');
+  skuEl.innerHTML = `<img src="${compressed}">`;
+  skuEl.classList.add('has-img');
+  loadImageHistory('skuImages', 'sku-img-history', (c) => {
+    state.skuImage = c;
+    skuEl.innerHTML = `<img src="${c.dataUrl}">`;
+    skuEl.classList.add('has-img');
+    loadImageHistory('skuImages', 'sku-img-history', null, c.hash);
+  });
+  e.target.value = '';
+}
+async function loadSkuImgHistory() {
+  await loadImageHistory('skuImages', 'sku-img-history', (c) => {
+    state.skuImage = c;
+    const skuEl = document.getElementById('task-sku-img-preview');
+    skuEl.innerHTML = `<img src="${c.dataUrl}">`;
+    skuEl.classList.add('has-img');
+  });
+}
+
+/* ===== Review image handling ===== */
+function pickReviewImg() {
+  document.getElementById('rev-img-input').click();
+}
+async function onReviewImgSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const dataUrl = await readFileAsDataURL(file);
+  const compressed = await compressImage(dataUrl, 1200, 0.85);
+  const blob = dataURLtoBlob(compressed);
+  const hash = await hashBlob(blob);
+  const all = await dbGetAll('reviewImages');
+  let rec = all.find(c => c.hash === hash);
+  if (!rec) {
+    await dbAdd('reviewImages', { hash, dataUrl: compressed, usedAt: Date.now() });
+    rec = { hash, dataUrl: compressed, usedAt: Date.now() };
+  } else {
+    rec.usedAt = Date.now();
+    await dbPut('reviewImages', rec);
+  }
+  state.reviewImage = rec;
+  const revEl = document.getElementById('rev-img-preview');
+  revEl.innerHTML = `<img src="${compressed}">`;
+  revEl.classList.add('has-img');
+  loadImageHistory('reviewImages', 'rev-img-history', (c) => {
+    state.reviewImage = c;
+    revEl.innerHTML = `<img src="${c.dataUrl}">`;
+    revEl.classList.add('has-img');
+    loadImageHistory('reviewImages', 'rev-img-history', null, c.hash);
+  });
+  e.target.value = '';
+}
+async function loadReviewImgHistory() {
+  await loadImageHistory('reviewImages', 'rev-img-history', (c) => {
+    state.reviewImage = c;
+    const revEl = document.getElementById('rev-img-preview');
+    revEl.innerHTML = `<img src="${c.dataUrl}">`;
+    revEl.classList.add('has-img');
+  });
+}
+
+/* Generic image-history renderer */
+async function loadImageHistory(store, wrapId, onClick, activeHash) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  const all = await dbGetAll(store);
+  const sorted = all.sort((a, b) => b.usedAt - a.usedAt).slice(0, 8);
+  const cur = activeHash || (state && state[storeToStateKey(store)] && state[storeToStateKey(store)].hash);
+  wrap.innerHTML = '';
+  sorted.forEach(c => {
+    const t = document.createElement('div');
+    t.className = 'img-thumb';
+    if (cur && cur === c.hash) t.classList.add('active');
+    t.style.backgroundImage = `url(${c.dataUrl})`;
+    t.onclick = () => onClick && onClick(c);
+    wrap.appendChild(t);
+  });
+}
+function storeToStateKey(store) {
+  if (store === 'skuImages') return 'skuImage';
+  if (store === 'reviewImages') return 'reviewImage';
+  if (store === 'covers') return 'cover';
+  return null;
+}
  /* ===== Form A: Task Card ===== */
- function enterTaskForm() {
-   showPage('page-form-task');
-   loadCoverHistory();
- }
+function enterTaskForm() {
+  showPage('page-form-task');
+  loadCoverHistory();
+  loadSkuImgHistory();
+}
  
- function toggleAction(row) {
-   row.classList.toggle('checked');
- }
- 
- function toggleCustomAction(row) {
+function toggleAction(row) {
+  row.classList.toggle('checked');
+}
+
+function toggleActionAll(row) {
+  const allRows = Array.from(document.querySelectorAll('[data-action]'))
+    .filter(r => r.dataset.action !== 'custom');
+  const allChecked = allRows.every(r => r.classList.contains('checked'));
+  allRows.forEach(r => r.classList.toggle('checked', !allChecked));
+}
+
+function toggleCustomAction(row) {
    row.classList.toggle('checked');
    const isChecked = row.classList.contains('checked');
    const toggle = document.getElementById('action-custom-toggle');
@@ -544,16 +640,27 @@
    }
  }
  
- function togglePrice() {
-   const t = document.getElementById('price-toggle');
-   document.getElementById('price-options').classList.toggle('hidden', !t.checked);
-   if (t.checked && !state.priceValue) {
-     const first = document.querySelector('[data-price="20"]');
-     if (first) pickPrice(first);
-   }
- }
- 
- function pickPrice(row) {
+function togglePrice() {
+  const t = document.getElementById('price-toggle');
+  document.getElementById('price-options').classList.toggle('hidden', !t.checked);
+  if (t.checked && !state.priceValue) {
+    const first = document.querySelector('[data-price="20"]');
+    if (first) pickPrice(first);
+  }
+}
+
+/* Event delegation for price rows (ensure clicks work on mobile) */
+const _priceOptsEl = document.getElementById('price-options');
+if (_priceOptsEl) {
+  // 兜底：内联 onclick 已经能处理大多数情况；这里只处理事件冒泡被吞的极端情况
+  _priceOptsEl.addEventListener('click', (e) => {
+    if (e.target.closest('.num-stepper')) return;
+    const row = e.target.closest('[data-price]');
+    if (row && !row.classList.contains('checked')) pickPrice(row);
+  });
+}
+
+function pickPrice(row) {
    document.querySelectorAll('[data-price]').forEach(r => r.classList.remove('checked'));
    row.classList.add('checked');
    const v = row.dataset.price;
@@ -565,12 +672,37 @@
    }
  }
  
- function onPriceCustomInput() {
-   const row = document.querySelector('[data-price="custom"]');
-   if (row && row.classList.contains('checked')) {
-     state.priceValue = parseFloat(document.getElementById('price-custom').value) || null;
-   }
- }
+function onPriceCustomInput() {
+  const row = document.querySelector('[data-price="custom"]');
+  const inp = document.getElementById('price-custom');
+  if (!row || !inp) return;
+  // 用户直接输入时，也自动选中自定义行
+  if (inp.value && !row.classList.contains('checked')) pickPrice(row);
+  if (row.classList.contains('checked')) {
+    state.priceValue = parseFloat(inp.value) || null;
+  }
+}
+
+function stepPrice(delta) {
+  const inp = document.getElementById('price-custom');
+  const row = document.querySelector('[data-price="custom"]');
+  if (delta !== 0) {
+    const cur = parseFloat(inp.value) || 0;
+    inp.value = Math.max(0, cur + delta);
+  }
+  if (row && !row.classList.contains('checked')) pickPrice(row);
+  state.priceValue = parseFloat(inp.value) || null;
+}
+
+function stepLen(delta) {
+  const inp = document.getElementById('rev-len-custom');
+  const cur = parseInt(inp.value) || 0;
+  const next = Math.max(1, cur + delta);
+  inp.value = next;
+  state.selectedLengthCustom = next;
+  const row = document.querySelector('[data-len="custom"]');
+  if (row && !row.classList.contains('checked')) pickLen(row);
+}
  
  function toggleSku() {
    const t = document.getElementById('sku-toggle');
@@ -585,13 +717,14 @@
    const kwSuggest = document.getElementById('task-kw-suggest').value.trim();
    if (!kwSuggest) { showToast('请填写建议搜索词'); return; }
  
-   if (store) await recordTerm('store', store);
-   if (product) await recordTerm('product', product);
-   if (kwSuggest) await recordTerm('keyword', kwSuggest);
-   for (const id of ['task-kw-alt1', 'task-kw-alt2', 'task-kw-alt3']) {
-     const v = document.getElementById(id).value.trim();
-     if (v) await recordTerm('keyword', v);
-   }
+  if (store) await recordTerm('store', store);
+  if (product) await recordTerm('product', product);
+  if (kwSuggest) await recordTerm('keyword', kwSuggest);
+  for (const id of ['task-kw-alt1', 'task-kw-alt2', 'task-kw-alt3']) {
+    const v = document.getElementById(id).value.trim();
+    if (v) await recordTerm('keyword', v);
+  }
+  if (actions.customText) await recordTerm('action', actions.customText);
  
    const actions = {};
    document.querySelectorAll('[data-action]').forEach(r => {
@@ -758,12 +891,13 @@
    document.body.removeChild(a);
  }
  /* ===== Form B: Review ===== */
- function enterReviewForm() {
-   showPage('page-form-review');
-   bindReviewInputs();
-   bindStyleIntensities();
-   updateSummaryCount();
- }
+function enterReviewForm() {
+  showPage('page-form-review');
+  bindReviewInputs();
+  bindStyleIntensities();
+  updateSummaryCount();
+  loadReviewImgHistory();
+}
  
  function bindReviewInputs() {
    const ta = document.getElementById('rev-summary');
@@ -901,14 +1035,14 @@
  }
 
  /* ===== Random helpers ===== */
- function randomLen() {
-   const rows = document.querySelectorAll('[data-len]');
-   rows.forEach(r => r.classList.remove('checked'));
-   // 权重：20 和 30 出现概率高一些
-   const pool = [10, 20, 20, 20, 30, 30, 30, 40];
-   const pick = pool[Math.floor(Math.random() * pool.length)];
-   const row = document.querySelector('[data-len="' + pick + '"]');
-   if (row) {
+function randomLen() {
+  const rows = document.querySelectorAll('[data-len]');
+  rows.forEach(r => r.classList.remove('checked'));
+  // 权重：20 和 30 出现概率高一些
+  const pool = [20, 20, 30, 30, 30, 40, 60];
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  const row = document.querySelector('[data-len="' + pick + '"]');
+  if (row) {
      row.classList.add('checked');
      state.selectedLength = pick;
      state.selectedLengthCustom = null;
@@ -917,10 +1051,10 @@
  
  function randomKw() {
    const rows = Array.from(document.querySelectorAll('[data-kw]')).filter(r => r.dataset.kw !== '__custom__');
-   rows.forEach(r => r.classList.remove('checked'));
-   state.selectedKw.clear();
-   const count = 1 + Math.floor(Math.random() * 3); // 1-3
-   const shuffled = rows.sort(() => Math.random() - 0.5).slice(0, count);
+  rows.forEach(r => r.classList.remove('checked'));
+  state.selectedKw.clear();
+  const count = 1 + Math.floor(Math.random() * 4); // 1-4
+  const shuffled = rows.sort(() => Math.random() - 0.5).slice(0, count);
    shuffled.forEach(row => {
      row.classList.add('checked');
      state.selectedKw.add(row.dataset.kw);
@@ -932,28 +1066,40 @@
    if (r) r.classList.add('hidden');
  }
  
- function randomStyle() {
-   const rows = Array.from(document.querySelectorAll('[data-style]'))
-     .filter(r => r.dataset.style !== '__custom__');
-   rows.forEach(r => r.classList.remove('checked'));
-   state.selectedStyles.clear();
-   // 1-2 个风格（不含 一般，因为它没有强度档位变化）
-   const valid = rows.filter(r => {
-     const name = r.dataset.style;
-     return name !== '一般' && STYLE_MATRIX[name] !== null && STYLE_MATRIX[name] !== undefined;
-   });
-  const count = 1 + Math.floor(Math.random() * 3); // 1, 2 or 3
-   const shuffled = valid.sort(() => Math.random() - 0.5).slice(0, count);
-   shuffled.forEach(row => {
-     row.classList.add('checked');
-     state.selectedStyles.set(row.dataset.style, 'default');
-   });
-   // 隐藏自定义输入
-   const t = document.getElementById('style-custom-toggle');
-   if (t) { t.checked = false; }
-   const r = document.getElementById('style-custom-row');
-   if (r) r.classList.add('hidden');
- }
+function randomStyle() {
+  const rows = Array.from(document.querySelectorAll('[data-style]'))
+    .filter(r => r.dataset.style !== '__custom__');
+  rows.forEach(r => r.classList.remove('checked'));
+  state.selectedStyles.clear();
+  // 风格池：排除「一般」（无强度档位）
+  const valid = rows.filter(r => {
+    const name = r.dataset.style;
+    return name !== '一般' && STYLE_MATRIX[name] !== null && STYLE_MATRIX[name] !== undefined;
+  });
+  // 2-6 个风格
+  const count = 2 + Math.floor(Math.random() * 5); // 2,3,4,5,6
+  const shuffled = valid.sort(() => Math.random() - 0.5).slice(0, count);
+  const intensityPool = ['default', 'low', 'mid', 'high'];
+  shuffled.forEach(row => {
+    row.classList.add('checked');
+    let intensity = 'default';
+    if (arguments[0] === 'strong') {
+      intensity = intensityPool[Math.floor(Math.random() * intensityPool.length)];
+    }
+    state.selectedStyles.set(row.dataset.style, intensity);
+    // 同步 segmented UI 高亮
+    const segs = row.querySelectorAll('.seg');
+    segs.forEach(s => s.classList.remove('active'));
+    const target = row.querySelector('.seg[data-int="' + intensity + '"]');
+    if (target) target.classList.add('active');
+    else if (segs[0]) segs[0].classList.add('active');
+  });
+  // 隐藏自定义输入
+  const t = document.getElementById('style-custom-toggle');
+  if (t) { t.checked = false; }
+  const r = document.getElementById('style-custom-row');
+  if (r) r.classList.add('hidden');
+}
  
  function randomId() {
    const rows = Array.from(document.querySelectorAll('[data-id]'))
@@ -967,12 +1113,24 @@
    state.selectedId = pick.dataset.id;
  }
 
- function pickTarget(row) {
-   document.querySelectorAll('[data-target]').forEach(r => r.classList.remove('checked'));
-   row.classList.add('checked');
-   state.selectedTarget = row.dataset.target;
-   document.getElementById('target-custom-text').value = '';
- }
+function pickTarget(row) {
+  document.querySelectorAll('[data-target]').forEach(r => r.classList.remove('checked'));
+  row.classList.add('checked');
+  state.selectedTarget = row.dataset.target;
+  document.getElementById('target-custom-text').value = '';
+}
+
+function randomTarget() {
+  const rows = Array.from(document.querySelectorAll('[data-target]'))
+    .filter(r => r.dataset.target !== '__custom__');
+  rows.forEach(r => r.classList.remove('checked'));
+  state.selectedTarget = null;
+  document.getElementById('target-custom-text').value = '';
+  if (rows.length === 0) return;
+  const pick = rows[Math.floor(Math.random() * rows.length)];
+  pick.classList.add('checked');
+  state.selectedTarget = pick.dataset.target;
+}
  function pickTargetCustom(row) {
    document.querySelectorAll('[data-target]').forEach(r => r.classList.remove('checked'));
    row.classList.add('checked');
@@ -983,7 +1141,7 @@
    const summary = document.getElementById('rev-summary').value.trim();
    if (!summary) { showToast('请填写需求概括'); return; }
    if (summary.length > 60) { showToast('需求概括不超过 60 字'); return; }
-   if (state.selectedKw.size === 0) { showToast('请至少选择 1 个必含要素'); return; }
+  if (state.selectedKw.size === 0) { showToast('请至少选择 1 个关键词体现'); return; }
  
    const length = state.selectedLength === 'custom'
      ? (parseInt(document.getElementById('rev-len-custom').value) || 20)
@@ -993,7 +1151,7 @@
      if (k === '__custom__') return document.getElementById('kw-custom-text').value.trim();
      return k;
    }).filter(Boolean);
-   if (kws.length === 0) { showToast('请至少选择 1 个必含要素'); return; }
+  if (kws.length === 0) { showToast('请至少选择 1 个关键词体现'); return; }
  
    const styles = [];
    for (const [name, intensity] of state.selectedStyles) {
@@ -1005,21 +1163,33 @@
      }
    }
  
-   let identity = null;
-   if (state.selectedId === '__custom__') {
-     identity = document.getElementById('id-custom-text').value.trim() || null;
-   } else if (state.selectedId) {
-     identity = state.selectedId;
-   }
- 
-   let target = null;
-   if (state.selectedTarget === '__custom__') {
-     target = document.getElementById('target-custom-text').value.trim() || null;
-   } else if (state.selectedTarget) {
-     target = state.selectedTarget;
-   }
- 
-   const prompt = buildDeepSeekPrompt({ summary, length, kws, styles, identity, target });
+  let identity = null;
+  if (state.selectedId === '__custom__') {
+    identity = document.getElementById('id-custom-text').value.trim() || null;
+    if (identity) await recordTerm('id', identity);
+  } else if (state.selectedId) {
+    identity = state.selectedId;
+  }
+
+  let target = null;
+  if (state.selectedTarget === '__custom__') {
+    target = document.getElementById('target-custom-text').value.trim() || null;
+    if (target) await recordTerm('target', target);
+  } else if (state.selectedTarget) {
+    target = state.selectedTarget;
+  }
+
+  if (summary) await recordTerm('summary', summary);
+  for (const k of kws) {
+    if (k && state.selectedKw.has('__custom__') && k === document.getElementById('kw-custom-text').value.trim()) {
+      await recordTerm('kw', k);
+    }
+  }
+  for (const s of styles) {
+    if (s.name === 'custom' && s.text) await recordTerm('style', s.text);
+  }
+
+  const prompt = buildDeepSeekPrompt({ summary, length, kws, styles, identity, target });
    showLoading('AI 正在撰写...');
    try {
      const text = await callLLM(prompt);
@@ -1048,7 +1218,7 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
   if (target) {
     p += '【目标产品】' + target + '（这条评价是关于该产品的，用户需求概括里不要再写产品名）\n\n';
   }
-  p += '【必含要素】在评价中自然融入以下要素（不要直接列出，要自然表达）：' + kws.join('、') + '\n\n';
+ p += '【关键词体现】在评价中自然融入以下要素（不要直接列出，要自然表达）：' + kws.join('、') + '\n\n';
   if (styles.length) {
     p += '【语句风格】按以下风格组合执行：\n';
     styles.forEach(s => {
@@ -1115,16 +1285,21 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
    return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
  }
 
- async function regenerateReview() {
-   if (!state.lastReview) return;
-   showLoading('重新生成中...');
-   try {
-     const prompt = buildDeepSeekPrompt(state.lastReview);
-     const text = await callLLM(prompt);
-     state.lastReview.text = text;
-     state.lastReview.createdAt = Date.now();
-     const all = await dbGetAll('reviews');
-     const sorted = all.sort((a, b) => b.createdAt - a.createdAt);
+async function regenerateReview() {
+  if (!state.lastReview) return;
+  if (state.lastReview.edited) {
+    const ok = confirm('当前评语已编辑过，重新生成会覆盖。继续？');
+    if (!ok) return;
+  }
+  showLoading('重新生成中...');
+  try {
+    const prompt = buildDeepSeekPrompt(state.lastReview);
+    const text = await callLLM(prompt);
+    state.lastReview.text = text;
+    state.lastReview.edited = false;
+    state.lastReview.createdAt = Date.now();
+    const all = await dbGetAll('reviews');
+    const sorted = all.sort((a, b) => b.createdAt - a.createdAt);
      if (sorted[0]) {
        sorted[0].text = text;
        sorted[0].createdAt = state.lastReview.createdAt;
@@ -1312,7 +1487,7 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
    const all = await dbGetAll('tasks');
    const sorted = all.sort((a, b) => b.createdAt - a.createdAt);
    if (!sorted.length) {
-     list.innerHTML = '<div class="empty">暂无任务卡历史</div>';
+    list.innerHTML = '<div class="empty"><div class="empty-title">还没有任务卡</div>生成的任务卡会出现在这里</div>';
      return;
    }
    sorted.forEach(t => {
@@ -1344,7 +1519,7 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
    const all = await dbGetAll('reviews');
    const sorted = all.sort((a, b) => b.createdAt - a.createdAt);
    if (!sorted.length) {
-     list.innerHTML = '<div class="empty">暂无评语历史</div>';
+    list.innerHTML = '<div class="empty"><div class="empty-title">还没有评语</div>生成的评语会出现在这里</div>';
      return;
    }
    sorted.forEach(r => {
@@ -1399,18 +1574,28 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
      btn.addEventListener('click', () => confirmInput(btn));
    });
  
-   const inputMap = {
-     'task-store': 'store',
-     'task-product': 'product',
-     'task-kw-suggest': 'keyword',
-     'task-kw-alt1': 'keyword',
-     'task-kw-alt2': 'keyword',
-     'task-kw-alt3': 'keyword'
-   };
-   Object.keys(inputMap).forEach(id => {
-     const el = document.getElementById(id);
-     if (el) el.addEventListener('focus', () => showTermSheet(inputMap[id], id));
-   });
+  // History dropdown: focus on any input with data-history → show dropdown
+  document.addEventListener('focusin', (e) => {
+    const t = e.target;
+    if (t && t.dataset && t.dataset.history) {
+      showHistoryDropdown(t.dataset.history, t);
+    }
+  });
+  // Close on click outside / focus outside
+  document.addEventListener('mousedown', (e) => {
+    const dd = document.getElementById('history-dropdown');
+    if (!dd || dd.hidden) return;
+    if (dd.contains(e.target)) return;
+    if (e.target.dataset && e.target.dataset.history) return;
+    hideHistoryDropdown();
+  }, true);
+  document.addEventListener('touchstart', (e) => {
+    const dd = document.getElementById('history-dropdown');
+    if (!dd || dd.hidden) return;
+    if (dd.contains(e.target)) return;
+    if (e.target.dataset && e.target.dataset.history) return;
+    hideHistoryDropdown();
+  }, true);
  
    document.getElementById('cover-input').addEventListener('change', onCoverSelected);
    document.getElementById('sku-img-input').addEventListener('change', onSkuImgSelected);
@@ -1418,6 +1603,23 @@ function buildDeepSeekPrompt({ summary, length, kws, styles, identity, target })
    document.getElementById('price-custom').addEventListener('input', onPriceCustomInput);
  
    refreshHome();
- }
- 
- document.addEventListener('DOMContentLoaded', init);
+}
+
+// iOS 26 液态玻璃水滴：监听所有 .switch 的状态变化，触发水滴展开动画
+function bindLiquidGlassSwitches() {
+  document.querySelectorAll('.switch').forEach(sw => {
+    const input = sw.querySelector('input[type="checkbox"]');
+    const slider = sw.querySelector('.slider');
+    if (!input || !slider) return;
+    input.addEventListener('change', () => {
+      slider.classList.remove('flipping-on', 'flipping-off');
+      void slider.offsetWidth;
+      slider.classList.add(input.checked ? 'flipping-on' : 'flipping-off');
+      setTimeout(() => {
+        slider.classList.remove('flipping-on', 'flipping-off');
+      }, 600);
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);

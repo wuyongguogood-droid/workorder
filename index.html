@@ -88,7 +88,7 @@
          <span class="label">店铺</span>
          <div class="value" style="text-align:right">
            <div class="chip-input" style="background:transparent;padding:0">
-             <input type="text" id="task-store" placeholder="输入店铺名" style="text-align:right">
+            <input type="text" id="task-store" placeholder="输入店铺名" style="text-align:right" data-history="store">
              <button class="icon-btn" data-confirm-input="task-store" data-term-type="store">
                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
              </button>
@@ -99,7 +99,7 @@
          <span class="label">商品名称</span>
          <div class="value" style="text-align:right">
            <div class="chip-input" style="background:transparent;padding:0">
-             <input type="text" id="task-product" placeholder="输入商品名" style="text-align:right">
+            <input type="text" id="task-product" placeholder="输入商品名" style="text-align:right" data-history="product">
              <button class="icon-btn" data-confirm-input="task-product" data-term-type="product">
                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
              </button>
@@ -113,12 +113,13 @@
      <div class="card-title">封面图</div>
      <div class="card">
        <div class="card-section">
-         <div class="hero-img" id="task-cover-preview" onclick="pickCover()">
-           <div class="upload-prompt">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21"/></svg>
-             <span>点击上传或选择历史</span>
-           </div>
-         </div>
+        <div class="hero-img" id="task-cover-preview" onclick="pickCover()">
+          <div class="upload-prompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21"/></svg>
+            <span>点击上传或选择历史</span>
+            <span class="upload-tip">从相册或拍照 · 也会保存到历史</span>
+          </div>
+        </div>
          <div class="img-thumb-grid" id="cover-history"></div>
          <input type="file" accept="image/*" id="cover-input" class="file-input">
        </div>
@@ -129,7 +130,7 @@
        <div class="form-row stack">
          <span class="label">建议词</span>
          <div class="chip-input">
-           <input type="text" id="task-kw-suggest" placeholder="主要搜索词">
+          <input type="text" id="task-kw-suggest" placeholder="主要搜索词" data-history="keyword">
            <button class="icon-btn" data-confirm-input="task-kw-suggest" data-term-type="keyword">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
            </button>
@@ -138,7 +139,7 @@
        <div class="form-row stack">
          <span class="label">备选 1</span>
          <div class="chip-input">
-           <input type="text" id="task-kw-alt1" placeholder="备选关键词 1">
+          <input type="text" id="task-kw-alt1" placeholder="备选关键词 1" data-history="keyword">
            <button class="icon-btn" data-confirm-input="task-kw-alt1" data-term-type="keyword">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
            </button>
@@ -147,7 +148,7 @@
        <div class="form-row stack">
          <span class="label">备选 2</span>
          <div class="chip-input">
-           <input type="text" id="task-kw-alt2" placeholder="备选关键词 2">
+          <input type="text" id="task-kw-alt2" placeholder="备选关键词 2" data-history="keyword">
            <button class="icon-btn" data-confirm-input="task-kw-alt2" data-term-type="keyword">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
            </button>
@@ -156,7 +157,7 @@
        <div class="form-row stack">
          <span class="label">备选 3</span>
          <div class="chip-input">
-           <input type="text" id="task-kw-alt3" placeholder="备选关键词 3">
+          <input type="text" id="task-kw-alt3" placeholder="备选关键词 3" data-history="keyword">
            <button class="icon-btn" data-confirm-input="task-kw-alt3" data-term-type="keyword">
              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
            </button>
@@ -165,9 +166,12 @@
      </div>
      <div id="task-kw-chips" class="chip-list" style="padding:0 32px 8px"></div>
 
-     <div class="card-title">营销动作</div>
-     <div class="card">
-       <div class="check-row" data-action="cart" onclick="toggleAction(this)">
+    <div class="card-title-row">
+      <span class="t">营销动作</span>
+      <button class="btn-tiny" onclick="toggleActionAll()">全选</button>
+    </div>
+    <div class="card">
+      <div class="check-row" data-action="cart" onclick="toggleAction(this)">
          <div class="check-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
          <span class="label-text">添加至购物车</span>
        </div>
@@ -196,7 +200,7 @@
          </label>
        </div>
        <div class="form-row hidden" id="action-custom-row" style="background:var(--fill-4)">
-         <input type="text" id="action-custom-text" placeholder="输入自定义动作">
+        <input type="text" id="action-custom-text" placeholder="输入自定义动作" data-history="action">
        </div>
      </div>
 
@@ -210,39 +214,30 @@
          </label>
        </div>
        <div class="hidden" id="price-options">
-         <div class="form-row" data-price="20" onclick="pickPrice(this)">
-           <span class="label">金额</span>
-           <div class="value row-between">
-             <span>¥20</span>
-             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-           </div>
+         <div class="check-row" data-price="20" onclick="pickPrice(this)">
+           <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           <span class="label-text">¥20</span>
          </div>
-         <div class="form-row" data-price="30" onclick="pickPrice(this)">
-           <span class="label">金额</span>
-           <div class="value row-between">
-             <span>¥30</span>
-             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-           </div>
+         <div class="check-row" data-price="30" onclick="pickPrice(this)">
+           <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           <span class="label-text">¥30</span>
          </div>
-         <div class="form-row" data-price="50" onclick="pickPrice(this)">
-           <span class="label">金额</span>
-           <div class="value row-between">
-             <span>¥50</span>
-             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-           </div>
+         <div class="check-row" data-price="50" onclick="pickPrice(this)">
+           <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           <span class="label-text">¥50</span>
          </div>
-         <div class="form-row" data-price="100" onclick="pickPrice(this)">
-           <span class="label">金额</span>
-           <div class="value row-between">
-             <span>¥100</span>
-             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-           </div>
+         <div class="check-row" data-price="100" onclick="pickPrice(this)">
+           <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           <span class="label-text">¥100</span>
          </div>
-         <div class="form-row" data-price="custom" onclick="pickPrice(this)">
-           <span class="label">金额</span>
-           <div class="value row-between">
-             <input type="number" id="price-custom" class="input-affix" placeholder="自定义金额" onclick="event.stopPropagation();pickPrice(this.closest('.form-row'))" oninput="onPriceCustomInput()">
-             <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+         <div class="check-row" data-price="custom" onclick="pickPrice(this)">
+           <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+           <span class="label-text">自定义</span>
+           <div class="num-stepper" onclick="event.stopPropagation()">
+             <span class="step-prefix">¥</span>
+             <button type="button" class="step-btn" onclick="stepPrice(-5)">−</button>
+             <input type="number" id="price-custom" placeholder="0" min="0" oninput="onPriceCustomInput()">
+             <button type="button" class="step-btn" onclick="stepPrice(5)">+</button>
            </div>
          </div>
        </div>
@@ -258,17 +253,19 @@
          </label>
        </div>
        <div class="hidden" id="sku-section">
-         <div class="form-row stack">
-           <span class="label">定位图片</span>
-           <div class="hero-img" id="task-sku-img-preview" style="aspect-ratio:16/9;max-height:160px" onclick="pickSkuImg()">
-             <div class="upload-prompt">
-               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-               <span>上传定位图</span>
-             </div>
-           </div>
-           <input type="file" accept="image/*" id="sku-img-input" class="file-input">
-         </div>
-         <div class="form-row stack">
+        <div class="form-row stack">
+          <span class="label">定位图片</span>
+          <div class="hero-img" id="task-sku-img-preview" style="aspect-ratio:16/9;max-height:160px" onclick="pickSkuImg()">
+            <div class="upload-prompt">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>上传定位图</span>
+              <span class="upload-tip">帮助员工找到对应 SKU</span>
+            </div>
+          </div>
+          <input type="file" accept="image/*" id="sku-img-input" class="file-input">
+          <div class="img-thumb-grid" id="sku-img-history"></div>
+        </div>
+        <div class="form-row stack">
            <span class="label">文字描述</span>
            <textarea id="task-sku-text" placeholder="如：深棕瓶身带金标那款，第三件 0 元"></textarea>
          </div>
@@ -312,7 +309,7 @@
      <div class="card-title">需求概括</div>
      <div class="card">
        <div class="form-row stack">
-         <textarea id="rev-summary" maxlength="60" placeholder="内容必须包括产品完整的市场名称。例如：欧莱雅伊诺雅染膏自然棕色"></textarea>
+        <textarea id="rev-summary" maxlength="60" placeholder="内容必须包括产品完整的市场名称。例如：欧莱雅伊诺雅染膏自然棕色" data-history="summary"></textarea>
          <div class="helper-text" style="padding:4px 0 0"><span id="rev-summary-count">0</span>/60</div>
        </div>
      </div>
@@ -325,31 +322,35 @@
       </button>
     </div>
      <div class="card">
-       <div class="check-row" data-len="10" onclick="pickLen(this)">
-         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-         <span class="label-text">10 ± 3 字</span>
-       </div>
-       <div class="check-row" data-len="20" onclick="pickLen(this)">
-         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-         <span class="label-text">20 ± 3 字</span>
-       </div>
-       <div class="check-row" data-len="30" onclick="pickLen(this)">
-         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-         <span class="label-text">30 ± 3 字</span>
-       </div>
-       <div class="check-row" data-len="40" onclick="pickLen(this)">
-         <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-         <span class="label-text">40 ± 3 字</span>
-       </div>
-       <div class="check-row" data-len="custom" onclick="pickLen(this)">
+      <div class="check-row" data-len="20" onclick="pickLen(this)">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="label-text">20 ± 3 字</span>
+      </div>
+      <div class="check-row" data-len="30" onclick="pickLen(this)">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="label-text">30 ± 3 字</span>
+      </div>
+      <div class="check-row" data-len="40" onclick="pickLen(this)">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="label-text">40 ± 3 字</span>
+      </div>
+      <div class="check-row" data-len="60" onclick="pickLen(this)">
+        <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <span class="label-text">60 ± 3 字</span>
+      </div>
+      <div class="check-row" data-len="custom" onclick="pickLen(this)">
          <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
          <span class="label-text">自定义</span>
-         <input type="number" id="rev-len-custom" placeholder="字数" style="width:80px;text-align:right" onclick="event.stopPropagation();pickLen(document.querySelector('[data-len=custom]'))">
+         <div class="num-stepper" onclick="event.stopPropagation()">
+           <button type="button" class="step-btn" onclick="stepLen(-1)">−</button>
+           <input type="number" id="rev-len-custom" placeholder="0" min="1" onfocus="pickLen(document.querySelector('[data-len=custom]'))" oninput="state.selectedLengthCustom=parseInt(this.value)||null">
+           <button type="button" class="step-btn" onclick="stepLen(1)">+</button>
+         </div>
        </div>
      </div>
 
-     <div class="card-title-row">
-      <span class="t">必含要素（必选）</span>
+    <div class="card-title-row">
+      <span class="t">关键词体现（必选）</span>
       <button class="btn-tiny" onclick="randomKw()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
         随机
@@ -397,16 +398,16 @@
          </label>
        </div>
        <div class="form-row hidden" id="kw-custom-row" style="background:var(--fill-4)">
-         <input type="text" id="kw-custom-text" placeholder="输入自定义关键词">
+        <input type="text" id="kw-custom-text" placeholder="输入自定义关键词" data-history="kw">
        </div>
      </div>
 
      <div class="card-title-row">
-      <span class="t">语句风格（可选）</span>
-      <button class="btn-tiny" onclick="randomStyle()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
-        随机
-      </button>
+     <span class="t">语句风格（可选）</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn-tiny" onclick="randomStyle('weak')">弱随机</button>
+        <button class="btn-tiny" onclick="randomStyle('strong')">强随机</button>
+      </div>
     </div>
      <div class="card" id="rev-styles">
        <div class="check-row" data-style="热情" onclick="toggleStyle(this)">
@@ -512,7 +513,7 @@
          </label>
        </div>
        <div class="form-row hidden" id="style-custom-row" style="background:var(--fill-4)">
-         <input type="text" id="style-custom-text" placeholder="输入自定义风格">
+        <input type="text" id="style-custom-text" placeholder="输入自定义风格" data-history="style">
        </div>
      </div>
 
@@ -563,12 +564,18 @@
       <div class="check-row" data-id="__custom__" onclick="pickCustomId(this)">
          <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
          <span class="label-text">自定义</span>
-         <input type="text" id="id-custom-text" placeholder="输入身份" style="width:120px;text-align:right" onclick="event.stopPropagation();pickCustomId(this.closest('.check-row'))">
+        <input type="text" id="id-custom-text" placeholder="输入身份" style="width:120px;text-align:right" data-history="id" onclick="event.stopPropagation();pickCustomId(this.closest('.check-row'))">
        </div>
      </div>
 
-     <div class="card-title">目标产品（可选）</div>
-     <div class="card" id="rev-target">
+    <div class="card-title-row">
+      <span class="t">目标产品（可选）</span>
+      <button class="btn-tiny" onclick="randomTarget()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+        随机
+      </button>
+    </div>
+    <div class="card" id="rev-target">
        <div class="check-row" data-target="欧莱雅染膏" onclick="pickTarget(this)">
          <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
          <span class="label-text">欧莱雅染膏</span>
@@ -596,22 +603,24 @@
        <div class="check-row" data-target="__custom__" onclick="pickTargetCustom(this)">
          <div class="check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
          <span class="label-text">自定义</span>
-         <input type="text" id="target-custom-text" placeholder="输入目标产品" style="width:140px;text-align:right" onclick="event.stopPropagation();pickTargetCustom(this.closest('.check-row'))">
+        <input type="text" id="target-custom-text" placeholder="输入目标产品" style="width:140px;text-align:right" data-history="target" onclick="event.stopPropagation();pickTargetCustom(this.closest('.check-row'))">
        </div>
      </div>
 
      <div class="card-title">配图（可选）</div>
      <div class="card">
        <div class="card-section">
-         <div class="hero-img" id="rev-img-preview" style="aspect-ratio:4/3" onclick="pickReviewImg()">
-           <div class="upload-prompt">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-             <span>上传评价配图</span>
-           </div>
-         </div>
-         <input type="file" accept="image/*" id="rev-img-input" class="file-input">
-       </div>
-     </div>
+        <div class="hero-img" id="rev-img-preview" style="aspect-ratio:4/3" onclick="pickReviewImg()">
+          <div class="upload-prompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>上传评价配图</span>
+            <span class="upload-tip">有图有真相 · 可选</span>
+          </div>
+        </div>
+        <input type="file" accept="image/*" id="rev-img-input" class="file-input">
+        <div class="img-thumb-grid" id="rev-img-history"></div>
+      </div>
+    </div>
    </div>
    <div class="action-bar">
      <button class="btn btn-primary" onclick="generateReview()">生成评语</button>
@@ -766,12 +775,9 @@
 
  </div>
 
- <!-- ========== Bottom Sheet (term history) ========== -->
- <div class="sheet-mask" id="sheet-mask" onclick="closeSheet()"></div>
- <div class="sheet" id="term-sheet">
-   <div class="sheet-handle"></div>
-   <div class="sheet-title" id="term-sheet-title">历史词条</div>
-   <div class="sheet-body" id="term-sheet-body"></div>
+ <!-- ========== History Dropdown (browser-style) ========== -->
+ <div class="history-dropdown" id="history-dropdown" hidden>
+   <div class="history-dropdown-body" id="history-dropdown-body"></div>
  </div>
 
  <!-- ========== Toast ========== -->
