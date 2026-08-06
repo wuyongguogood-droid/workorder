@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4A9EFF"/>
+      <stop offset="100%" stop-color="#0A5FE0"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F2F4F8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- 文档主体 -->
+  <rect x="128" y="120" width="256" height="296" rx="24" fill="url(#paper)"/>
+  <!-- 折角 -->
+  <path d="M340 120 L384 164 L340 164 Z" fill="#DDE2EA"/>
+  <path d="M340 120 L384 164 L340 164 Z" fill="none" stroke="#C7CDD6" stroke-width="2"/>
+  <!-- 文本行 1 -->
+  <rect x="160" y="200" width="160" height="14" rx="7" fill="#C7CDD6"/>
+  <!-- 文本行 2 -->
+  <rect x="160" y="232" width="120" height="14" rx="7" fill="#C7CDD6"/>
+  <!-- 对勾圆 -->
+  <circle cx="200" cy="320" r="36" fill="#34C759"/>
+  <path d="M183 320 L195 332 L218 308" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- 文本行 3 -->
+  <rect x="252" y="308" width="84" height="12" rx="6" fill="#DDE2EA"/>
+  <rect x="252" y="328" width="60" height="12" rx="6" fill="#DDE2EA"/>
+</svg>

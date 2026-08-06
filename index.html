@@ -6,8 +6,12 @@
  <meta name="apple-mobile-web-app-capable" content="yes">
  <meta name="apple-mobile-web-app-status-bar-style" content="default">
  <meta name="apple-mobile-web-app-title" content="工单助手">
- <title>工单助手</title>
- <link rel="stylesheet" href="styles.css?v=3">
+<title>工单助手</title>
+<meta name="theme-color" content="#0A5FE0">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+ <link rel="stylesheet" href="styles.css?v=4">
  </head>
  <body>
  <div class="app" id="app">
@@ -748,7 +752,7 @@
      <div class="card">
        <div class="form-row">
          <span class="label">版本</span>
-         <span class="value">1.2.2</span>
+         <span class="value">1.3.0</span>
        </div>
      </div>
    </div>
@@ -798,6 +802,13 @@
  <!-- ========== Scripts ========== -->
  <script src="https://cdn.staticfile.org/html2canvas/1.4.1/html2canvas.min.js"></script>
  <script src="https://cdn.staticfile.org/qrcodejs/1.0.0/qrcode.min.js"></script>
- <script src="app.js?v=3"></script>
- </body>
+ <script src="app.js?v=4"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('SW register failed', e));
+  });
+}
+</script>
+</body>
  </html>
