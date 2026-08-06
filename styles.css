@@ -192,7 +192,6 @@
 }
 .card-title:first-child,
 .card-title-row:first-child { margin-top: 8px; }
- }
 
  .card-title-row {
    display: flex;
@@ -338,7 +337,7 @@
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 .chip:active { transform: scale(0.94); background-color: var(--fill-2); }
- }
+
  .chip .x {
    width: 18px;
    height: 18px;
@@ -456,27 +455,7 @@
 /* 按下时滑块轻微缩放 */
 .switch:active .slider::before { transform: scale(0.94); }
 .switch input:checked:active .slider::before { transform: translateX(22px) scale(0.94); }
-}
-.switch input:checked + .slider {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.12) 42%, rgba(0,0,0,0.05) 100%),
-    linear-gradient(180deg, #5BE37A 0%, #30B14A 55%, #1F8C36 100%);
-  box-shadow:
-    inset 0 0 0 0.5px rgba(255,255,255,0.5),
-    inset 0 1px 2px rgba(255,255,255,0.65),
-    inset 0 -1px 1px rgba(0,0,0,0.2),
-    0 1px 2px rgba(52,199,89,0.32),
-    0 6px 18px rgba(52,199,89,0.28);
-}
-.switch input:checked + .slider::before {
-  transform: translateX(22px);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255,255,255,0.98),
-    inset 0 -1px 1px rgba(0,0,0,0.06),
-    0 1px 1px rgba(0,0,0,0.05),
-    0 2px 8px rgba(0,0,0,0.22),
-    0 6px 18px rgba(0,0,0,0.14);
-}
+
 /* iOS 26 水滴展开：state 变化时跑关键帧，滑块先放大、再向目标位置滑、再收回 */
 .switch .slider.flipping::before {
   animation: drop-flip 0.55s cubic-bezier(0.32, 0.72, 0, 1);
@@ -505,28 +484,6 @@
   45%  { transform: translateX(11px) scale(1.35); filter: blur(2px); opacity: 0.85; }
   100% { transform: translateX(0) scale(1); filter: blur(0); opacity: 1; }
 }
-/* 这块保留旧 fallback（防止新动画未加载时空白） */
-.switch input:checked + .slider {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.12) 42%, rgba(0,0,0,0.05) 100%),
-    linear-gradient(180deg, #5BE37A 0%, #30B14A 55%, #1F8C36 100%);
-  box-shadow:
-    inset 0 0 0 0.5px rgba(255,255,255,0.5),
-    inset 0 1px 2px rgba(255,255,255,0.65),
-    inset 0 -1px 1px rgba(0,0,0,0.2),
-    0 1px 2px rgba(52,199,89,0.32),
-    0 6px 18px rgba(52,199,89,0.28);
-}
-.switch input:checked + .slider::before {
-  transform: translateX(22px);
-  box-shadow:
-    inset 0 1px 1.5px rgba(255,255,255,0.98),
-    inset 0 -1px 1px rgba(0,0,0,0.06),
-    0 1px 1px rgba(0,0,0,0.05),
-    0 2px 8px rgba(0,0,0,0.22),
-    0 6px 18px rgba(0,0,0,0.14);
-}
- 
  /* ========== iOS Checkbox / Radio ========== */
 .check-row {
   display: flex;
@@ -552,13 +509,21 @@
 }
 .check-row.checked .check { transform: scale(1.08); }
 
+/* === 勾选态：玻璃球（带顶边折射 + specular） === */
 .check-row.checked .check {
-  background: var(--system-blue);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 50%),
+    var(--system-blue);
   border-color: var(--system-blue);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.6),
+    inset 0 -1px 1px rgba(0,0,0,0.12),
+    0 2px 6px rgba(0,122,255,0.32);
 }
 .check svg { opacity: 0; transition: opacity 0.1s; }
 .check-row.checked .check svg { opacity: 1; }
- 
+
+/* === 复选框：玻璃质感（带顶边折射） === */
 .check-box {
   width: 22px;
   height: 22px;
@@ -573,8 +538,14 @@
 .check-row.checked .check-box { transform: scale(1.08); }
 .check-box svg { opacity: 0; transition: opacity 0.1s; color: #fff; }
 .check-row.checked .check-box {
-  background: var(--system-blue);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0) 50%),
+    var(--system-blue);
   border-color: var(--system-blue);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255,255,255,0.6),
+    inset 0 -1px 1px rgba(0,0,0,0.12),
+    0 2px 6px rgba(0,122,255,0.32);
 }
 .check-row.checked .check-box svg { opacity: 1; }
  
