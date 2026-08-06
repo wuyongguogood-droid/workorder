@@ -727,6 +727,14 @@ function stepLen(delta) {
    const kwSuggest = document.getElementById('task-kw-suggest').value.trim();
    if (!kwSuggest) { showToast('请填写建议搜索词'); return; }
  
+  const actions = {};
+  document.querySelectorAll('[data-action]').forEach(r => {
+    actions[r.dataset.action] = r.classList.contains('checked');
+  });
+  actions.customText = document.getElementById('action-custom-toggle').checked
+    ? document.getElementById('action-custom-text').value.trim()
+    : '';
+
   if (store) await recordTerm('store', store);
   if (product) await recordTerm('product', product);
   if (kwSuggest) await recordTerm('keyword', kwSuggest);
@@ -735,14 +743,6 @@ function stepLen(delta) {
     if (v) await recordTerm('keyword', v);
   }
   if (actions.customText) await recordTerm('action', actions.customText);
- 
-   const actions = {};
-   document.querySelectorAll('[data-action]').forEach(r => {
-     actions[r.dataset.action] = r.classList.contains('checked');
-   });
-   actions.customText = document.getElementById('action-custom-toggle').checked
-     ? document.getElementById('action-custom-text').value.trim()
-     : '';
  
    const skuEnabled = document.getElementById('sku-toggle').checked;
    if (skuEnabled) {
