@@ -91,7 +91,7 @@
  
  /* ===== IndexedDB ===== */
  const DB_NAME = 'workorder-db';
- const DB_VERSION = 1;
+ const DB_VERSION = 2;
  let _db = null;
  
  function dbOpen() {
@@ -118,6 +118,16 @@
        }
        if (!db.objectStoreNames.contains('settings')) {
          db.createObjectStore('settings', { keyPath: 'key' });
+       }
+       if (!db.objectStoreNames.contains('skuImages')) {
+         const s = db.createObjectStore('skuImages', { keyPath: 'id', autoIncrement: true });
+         s.createIndex('hash', 'hash', { unique: true });
+         s.createIndex('usedAt', 'usedAt');
+       }
+       if (!db.objectStoreNames.contains('reviewImages')) {
+         const s = db.createObjectStore('reviewImages', { keyPath: 'id', autoIncrement: true });
+         s.createIndex('hash', 'hash', { unique: true });
+         s.createIndex('usedAt', 'usedAt');
        }
      };
      req.onsuccess = () => { _db = req.result; resolve(_db); };
