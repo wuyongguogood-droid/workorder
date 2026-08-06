@@ -470,18 +470,20 @@
   100% { transform: translateX(0) scale(1); filter: blur(0); opacity: 1; }
 }
 @keyframes drop-flip-on {
-  /* 关 → 开：原位放大 → 滑动到右 → 收回 */
-  0%   { transform: translateX(0) scale(1.35); filter: blur(2px); opacity: 0.85; }
-  45%  { transform: translateX(11px) scale(1.35); filter: blur(2px); opacity: 0.85; }
+  /* 关 → 开：原位变水滴（极度透明）→ 滑到右 → 收回 */
+  0%   { transform: translateX(0) scale(1); filter: blur(0); opacity: 1; }
+  15%  { transform: translateX(0) scale(1.4); filter: blur(1.2px); opacity: 0.18; }
+  55%  { transform: translateX(11px) scale(1.4); filter: blur(1.2px); opacity: 0.18; }
   100% { transform: translateX(22px) scale(1); filter: blur(0); opacity: 1; }
 }
 .switch .slider.flipping-off::before {
   animation: drop-flip-off 0.55s cubic-bezier(0.32, 0.72, 0, 1);
 }
 @keyframes drop-flip-off {
-  /* 开 → 关：右位放大 → 滑动到左 → 收回 */
-  0%   { transform: translateX(22px) scale(1.35); filter: blur(2px); opacity: 0.85; }
-  45%  { transform: translateX(11px) scale(1.35); filter: blur(2px); opacity: 0.85; }
+  /* 开 → 关：右位变水滴（极度透明）→ 滑到左 → 收回 */
+  0%   { transform: translateX(22px) scale(1); filter: blur(0); opacity: 1; }
+  15%  { transform: translateX(22px) scale(1.4); filter: blur(1.2px); opacity: 0.18; }
+  55%  { transform: translateX(11px) scale(1.4); filter: blur(1.2px); opacity: 0.18; }
   100% { transform: translateX(0) scale(1); filter: blur(0); opacity: 1; }
 }
  /* ========== iOS Checkbox / Radio ========== */
