@@ -1683,6 +1683,21 @@ async function regenerateReview() {
 
   /* 边缘返回手势：屏幕左侧边缘向右滑动 */
   bindEdgeBackGesture();
+  /* iOS 键盘适配：软键盘弹起时把底部 action-bar 顶到键盘上方 */
+  bindKeyboardShrink();
+}
+
+function bindKeyboardShrink() {
+  if (!window.visualViewport) return;
+  const onVV = () => {
+    const kb = Math.max(0, window.innerHeight - window.visualViewport.height);
+    const up = kb > 80;
+    document.body.classList.toggle('kb-up', up);
+    document.documentElement.style.setProperty('--kb-offset', up ? kb + 'px' : '0px');
+  };
+  window.visualViewport.addEventListener('resize', onVV);
+  window.visualViewport.addEventListener('scroll', onVV);
+  onVV();
 }
 
 function bindEdgeBackGesture() {

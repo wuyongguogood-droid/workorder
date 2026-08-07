@@ -614,18 +614,26 @@
  .btn-pill { border-radius: var(--radius-pill); }
  
  /* Bottom action bar */
- .action-bar {
-   position: sticky;
-   bottom: 0;
-   background: rgba(248,248,248,0.92);
-   backdrop-filter: var(--nav-blur);
-   -webkit-backdrop-filter: var(--nav-blur);
-   border-top: 0.5px solid var(--hairline);
-   padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0));
-   display: flex;
-   gap: 8px;
-   z-index: 40;
- }
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(248,248,248,0.92);
+  backdrop-filter: var(--nav-blur);
+  -webkit-backdrop-filter: var(--nav-blur);
+  border-top: 0.5px solid var(--hairline);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0));
+  display: flex;
+  gap: 8px;
+  z-index: 40;
+  transition: transform 0.2s ease;
+}
+.page-body { padding-bottom: 90px; }
+/* 输入态键盘适配：body 加上 .kb-up 后所有固定底栏上移 */
+body.kb-up .action-bar {
+  transform: translateY(var(--kb-offset, 0px));
+}
  .action-bar .btn { flex: 1; padding: 14px; font-size: 17px; }
  
  /* ========== Home Cards ========== */
@@ -1553,4 +1561,9 @@ input[type=number] { -moz-appearance: textfield; }
   width: 100%;
   justify-content: center;
   padding: 7px 8px;
+}
+.page-body { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+/* 输入态键盘适配：body 加上 .kb-up 后所有固定底栏上移 */
+body.kb-up .action-bar {
+  transform: translateY(var(--kb-offset, 0px));
 }
