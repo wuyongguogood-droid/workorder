@@ -49,3 +49,5 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+const CACHE = 'workorder-v1.3.2';
+const BUILD = '2026-08-07-fix-actionbar';
