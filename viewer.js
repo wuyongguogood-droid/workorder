@@ -85,9 +85,17 @@
    copyImageToClipboard(window._currentTask.sku.image);
  }
  function copyReviewImg() {
-   if (!window._currentReview || !window._currentReview.image) return;
-   copyImageToClipboard(window._currentReview.image);
- }
+  if (!window._currentReview) return;
+  const imgs = window._currentReview.images || (window._currentReview.image ? [window._currentReview.image] : []);
+  if (!imgs.length) return;
+  copyImageToClipboard(imgs[0]);
+}
+function copyReviewImgAt(i) {
+  if (!window._currentReview) return;
+  const imgs = window._currentReview.images || (window._currentReview.image ? [window._currentReview.image] : []);
+  if (!imgs[i]) return;
+  copyImageToClipboard(imgs[i]);
+}
 
  /* 标签长按复制（兼容移动端 + 桌面右键） */
  function bindLongPress(el) {
@@ -222,24 +230,31 @@
  }
 
  function renderReview(review) {
-   const imgHTML = review.image
-     ? '<img src="' + review.image + '" class="viewer-review-img" id="v-review-img" onclick="event.stopPropagation();openLightbox(this.src)">'
-     : '';
-   /* 去掉"保存配图"按钮，改成"复制图片到剪贴板" */
-   const btnRow = (review.image || review.text)
-     ? '<div style="display:flex;gap:8px;margin-top:12px">' +
-       (review.text ? '<button class="btn btn-secondary" style="flex:1" onclick="copyText(\'v-review-text\')">复制文本</button>' : '<div style="flex:1"></div>') +
-       (review.image ? '<button class="btn btn-secondary" style="flex:1" onclick="copyReviewImg()">复制图片到剪贴板</button>' : '<div style="flex:1"></div>') +
-       '</div>'
-     : '';
-   return '<div class="viewer-section">' +
-     '<div class="vs-title">买家秀评语</div>' +
-     (review.target ? '<div style="font-size:13px;color:var(--secondary-label);margin-bottom:8px">关于 ' + escapeHtml(review.target) + '</div>' : '') +
-     '<div class="viewer-review-text" id="v-review-text">' + escapeHtml(review.text || '') + '</div>' +
-     imgHTML +
-     btnRow +
-     '</div>';
- }
+  const imgs = review.images || (review.image ? [review.image] : []);
+  let imgsHTML = '';
+  if (imgs.length) {
+    imgsHTML = '<div class="viewer-review-grid">';
+    imgs.forEach((src, i) => {
+      imgsHTML += '<div class="viewer-review-item">' +
+        '<img src="' + src + '" class="viewer-review-img" onclick="event.stopPropagation();openLightbox(this.src)">' +
+        '<button class="btn btn-secondary btn-tiny" onclick="copyReviewImgAt(' + i + ')">复制图片</button>' +
+        '</div>';
+    });
+    imgsHTML += '</div>';
+  }
+  const btnRow = (imgs.length || review.text)
+    ? '<div style="display:flex;gap:8px;margin-top:12px">' +
+      (review.text ? '<button class="btn btn-secondary" style="flex:1" onclick="copyText(\'v-review-text\')">复制文本</button>' : '<div style="flex:1"></div>') +
+      '</div>'
+    : '';
+  return '<div class="viewer-section">' +
+    '<div class="vs-title">买家秀评语</div>' +
+    (review.target ? '<div style="font-size:13px;color:var(--secondary-label);margin-bottom:8px">关于 ' + escapeHtml(review.target) + '</div>' : '') +
+    '<div class="viewer-review-text" id="v-review-text">' + escapeHtml(review.text || '') + '</div>' +
+    imgsHTML +
+    btnRow +
+    '</div>';
+}
 
  function showError(msg) {
    const body = document.getElementById('viewer-body');

@@ -1453,3 +1453,104 @@ input[type=number] { -moz-appearance: textfield; }
    cursor: pointer;
    font-family: inherit;
  }
+/* ========== 多张配图：已选 + 添加按钮 ========== */
+.picked-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.picked-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--fill-2);
+  border-radius: 10px;
+  border: 1.5px solid var(--fill-2);
+}
+.picked-x {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-weight: 300;
+}
+.picked-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1.5px dashed var(--separator);
+  border-radius: 10px;
+  color: var(--secondary-label);
+  background: var(--fill-1);
+  cursor: pointer;
+  font-size: 13px;
+}
+.picked-add:active { background: var(--fill-2); }
+.picked-add svg { width: 24px; height: 24px; }
+.picked-add .upload-tip { font-size: 11px; }
+/* ========== viewer 多张配图 ========== */
+/* ========== 边缘返回手势 ========== */
+.app.edge-back-panning {
+  transition: none;
+  will-change: transform;
+}
+.edge-back-indicator {
+  position: fixed;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 38px;
+  background: rgba(60, 60, 67, 0.25);
+  border-radius: 3px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: opacity 0.15s;
+}
+.viewer-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.viewer-review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.viewer-review-item .viewer-review-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--fill-2);
+  cursor: pointer;
+  display: block;
+}
+.viewer-review-item .btn-tiny {
+  width: 100%;
+  justify-content: center;
+  padding: 7px 8px;
+}

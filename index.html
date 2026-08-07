@@ -11,10 +11,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
- <link rel="stylesheet" href="styles.css?v=4">
+ <link rel="stylesheet" href="styles.css?v=5">
  </head>
  <body>
- <div class="app" id="app">
+<div class="app" id="app">
+<div class="edge-back-indicator" id="edge-back-indicator"></div>
 
  <!-- ========== Status Bar (decorative) ========== -->
  <div class="status-bar">
@@ -612,15 +613,19 @@
      </div>
 
      <div class="card-title">配图（可选）</div>
-     <div class="card">
-       <div class="card-section">
-        <div class="hero-img" id="rev-img-preview" style="aspect-ratio:4/3" onclick="pickReviewImg()">
-          <div class="upload-prompt">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>上传评价配图</span>
-            <span class="upload-tip">有图有真相 · 可选</span>
-          </div>
+    <div class="card">
+      <div class="card-section">
+        <div class="picked-grid" id="rev-img-picked"></div>
+        <div class="picked-add" onclick="pickReviewImg()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>添加配图</span>
+          <span class="upload-tip">有图有真相 · 可多选</span>
         </div>
+        <input type="file" accept="image/*" multiple id="rev-img-input" class="file-input">
+        <div class="img-thumb-grid" id="rev-img-history"></div>
+        <div class="upload-tip" id="rev-img-clear" style="display:none;text-align:center;margin-top:8px" onclick="clearReviewImages()">清空已选</div>
+      </div>
+    </div>
         <input type="file" accept="image/*" id="rev-img-input" class="file-input">
         <div class="img-thumb-grid" id="rev-img-history"></div>
       </div>
@@ -752,7 +757,7 @@
      <div class="card">
        <div class="form-row">
          <span class="label">版本</span>
-         <span class="value">1.3.0</span>
+         <span class="value">1.3.1</span>
        </div>
      </div>
    </div>
@@ -802,7 +807,7 @@
  <!-- ========== Scripts ========== -->
  <script src="https://cdn.staticfile.org/html2canvas/1.4.1/html2canvas.min.js"></script>
  <script src="https://cdn.staticfile.org/qrcodejs/1.0.0/qrcode.min.js"></script>
- <script src="app.js?v=4"></script>
+ <script src="app.js?v=5"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

@@ -235,15 +235,47 @@
  }
  
  /* ===== Navigation ===== */
- function showPage(id) {
-   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-   const el = document.getElementById(id);
-   if (el) el.classList.add('active');
-   window.scrollTo(0, 0);
-   if (id === 'page-dispatch') refreshDispatch();
-   if (id === 'page-history') loadHistory();
-   if (id === 'page-home') refreshHome();
- }
+const pageStack = ['page-home'];
+let isNavigating = false;
+
+function showPage(id) {
+  showPageTo(id, false);
+}
+function showPageReplace(id) {
+  showPageTo(id, true);
+}
+function showPageTo(id, replace) {
+  if (isNavigating) return;
+  const cur = document.querySelector('.page.active');
+  const curId = cur ? cur.id : null;
+  if (curId === id) return;
+  if (id === 'page-home') {
+    pageStack.length = 0;
+    pageStack.push('page-home');
+  } else if (!replace && curId) {
+    pageStack.push(curId);
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'page-dispatch') refreshDispatch();
+  if (id === 'page-history') loadHistory();
+  if (id === 'page-home') refreshHome();
+}
+function goBack() {
+  if (pageStack.length <= 1) return;
+  const prev = pageStack.pop();
+  isNavigating = true;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(prev);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+  if (prev === 'page-dispatch') refreshDispatch();
+  if (prev === 'page-history') loadHistory();
+  if (prev === 'page-home') refreshHome();
+  setTimeout(() => { isNavigating = false; }, 350);
+}
  
  /* ===== Toast & Loading ===== */
  let toastTimer = null;
@@ -549,12 +581,20 @@ function pickReviewImg() {
   document.getElementById('rev-img-input').click();
 }
 async function onReviewImgSelected(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const files = Array.from(e.target.files || []);
+  for (const file of files) {
+    await addReviewImage(file);
+  }
+  renderReviewImgs();
+  loadReviewImgHistory();
+  e.target.value = '';
+}
+async function addReviewImage(file) {
   const dataUrl = await readFileAsDataURL(file);
   const compressed = await compressImage(dataUrl, 1200, 0.85);
   const blob = dataURLtoBlob(compressed);
   const hash = await hashBlob(blob);
+  if (state.reviewImages.some(c => c.hash === hash)) return;
   const all = await dbGetAll('reviewImages');
   let rec = all.find(c => c.hash === hash);
   if (!rec) {
@@ -564,24 +604,42 @@ async function onReviewImgSelected(e) {
     rec.usedAt = Date.now();
     await dbPut('reviewImages', rec);
   }
-  state.reviewImage = rec;
-  const revEl = document.getElementById('rev-img-preview');
-  revEl.innerHTML = `<img src="${compressed}">`;
-  revEl.classList.add('has-img');
-  loadImageHistory('reviewImages', 'rev-img-history', (c) => {
-    state.reviewImage = c;
-    revEl.innerHTML = `<img src="${c.dataUrl}">`;
-    revEl.classList.add('has-img');
-    loadImageHistory('reviewImages', 'rev-img-history', null, c.hash);
+  state.reviewImages.push(rec);
+}
+function removeReviewImage(hash) {
+  state.reviewImages = state.reviewImages.filter(c => c.hash !== hash);
+  renderReviewImgs();
+  loadReviewImgHistory();
+}
+function renderReviewImgs() {
+  const wrap = document.getElementById('rev-img-picked');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  state.reviewImages.forEach(c => {
+    const t = document.createElement('div');
+    t.className = 'picked-thumb';
+    t.style.backgroundImage = `url(${c.dataUrl})`;
+    const x = document.createElement('span');
+    x.className = 'picked-x';
+    x.textContent = '×';
+    x.onclick = (ev) => { ev.stopPropagation(); removeReviewImage(c.hash); };
+    t.appendChild(x);
+    wrap.appendChild(t);
   });
-  e.target.value = '';
+  const clearBtn = document.getElementById('rev-img-clear');
+  if (clearBtn) clearBtn.style.display = state.reviewImages.length ? 'block' : 'none';
+}
+function clearReviewImages() {
+  state.reviewImages = [];
+  renderReviewImgs();
+  loadReviewImgHistory();
 }
 async function loadReviewImgHistory() {
   await loadImageHistory('reviewImages', 'rev-img-history', (c) => {
-    state.reviewImage = c;
-    const revEl = document.getElementById('rev-img-preview');
-    revEl.innerHTML = `<img src="${c.dataUrl}">`;
-    revEl.classList.add('has-img');
+    if (state.reviewImages.some(x => x.hash === c.hash)) return;
+    state.reviewImages.push(c);
+    renderReviewImgs();
+    loadReviewImgHistory();
   });
 }
 
@@ -591,12 +649,19 @@ async function loadImageHistory(store, wrapId, onClick, activeHash) {
   if (!wrap) return;
   const all = await dbGetAll(store);
   const sorted = all.sort((a, b) => b.usedAt - a.usedAt).slice(0, 8);
-  const cur = activeHash || (state && state[storeToStateKey(store)] && state[storeToStateKey(store)].hash);
+  let selectedHashes = [];
+  if (activeHash) selectedHashes = [activeHash];
+  else {
+    const key = storeToStateKey(store);
+    const v = state && key ? state[key] : null;
+    if (Array.isArray(v)) selectedHashes = v.map(x => x.hash);
+    else if (v && v.hash) selectedHashes = [v.hash];
+  }
   wrap.innerHTML = '';
   sorted.forEach(c => {
     const t = document.createElement('div');
     t.className = 'img-thumb';
-    if (cur && cur === c.hash) t.classList.add('active');
+    if (selectedHashes.includes(c.hash)) t.classList.add('active');
     t.style.backgroundImage = `url(${c.dataUrl})`;
     t.onclick = () => onClick && onClick(c);
     wrap.appendChild(t);
@@ -604,7 +669,7 @@ async function loadImageHistory(store, wrapId, onClick, activeHash) {
 }
 function storeToStateKey(store) {
   if (store === 'skuImages') return 'skuImage';
-  if (store === 'reviewImages') return 'reviewImage';
+  if (store === 'reviewImages') return 'reviewImages';
   if (store === 'covers') return 'cover';
   return null;
 }
@@ -780,7 +845,7 @@ function stepLen(delta) {
      state.lastCardDataUrl = dataUrl;
      await dbAdd('tasks', Object.assign({}, data, { cardDataUrl: dataUrl }));
      showTaskCardResult(data, dataUrl);
-     showPage('page-result-task');
+     showPageReplace('page-result-task');
    } catch (e) {
      console.error(e);
      showToast('生成失败：' + e.message);
@@ -903,6 +968,8 @@ function stepLen(delta) {
  /* ===== Form B: Review ===== */
 function enterReviewForm() {
   showPage('page-form-review');
+  state.reviewImages = [];
+  renderReviewImgs();
   bindReviewInputs();
   bindStyleIntensities();
   updateSummaryCount();
@@ -1205,13 +1272,13 @@ function randomTarget() {
      const text = await callLLM(prompt);
      state.lastReview = {
        summary, length, kws, styles, identity, target,
-       text, image: state.reviewImage ? state.reviewImage.dataUrl : null,
+       text, images: state.reviewImages.map(c => c.dataUrl),
        createdAt: Date.now()
      };
     await dbAdd('reviews', Object.assign({}, state.lastReview));
     document.getElementById('review-text-content').textContent = text;
     onReviewEdit(text);
-    showPage('page-result-review');
+    showPageReplace('page-result-review');
    } catch (e) {
      console.error(e);
      showToast('生成失败：' + e.message);
@@ -1517,7 +1584,7 @@ async function regenerateReview() {
        state.lastTask = t;
        state.lastCardDataUrl = t.cardDataUrl;
        showTaskCardResult(t, t.cardDataUrl);
-       showPage('page-result-task');
+       showPageReplace('page-result-task');
      };
      list.appendChild(item);
    });
@@ -1550,7 +1617,7 @@ async function regenerateReview() {
      state.lastReview = r;
      document.getElementById('review-text-content').textContent = r.text;
      onReviewEdit(r.text);
-     showPage('page-result-review');
+     showPageReplace('page-result-review');
    };
      list.appendChild(item);
    });
@@ -1610,9 +1677,86 @@ async function regenerateReview() {
    document.getElementById('cover-input').addEventListener('change', onCoverSelected);
    document.getElementById('sku-img-input').addEventListener('change', onSkuImgSelected);
    document.getElementById('rev-img-input').addEventListener('change', onReviewImgSelected);
-   document.getElementById('price-custom').addEventListener('input', onPriceCustomInput);
- 
-   refreshHome();
+  document.getElementById('price-custom').addEventListener('input', onPriceCustomInput);
+
+  refreshHome();
+
+  /* 边缘返回手势：屏幕左侧边缘向右滑动 */
+  bindEdgeBackGesture();
+}
+
+function bindEdgeBackGesture() {
+  let startX = 0, startY = 0, active = false, moved = false;
+  const EDGE = 28, SLOP = 40;
+  const app = document.getElementById('app');
+  const ind = document.getElementById('edge-back-indicator');
+  const clear = () => {
+    active = false;
+    moved = false;
+    if (ind) ind.style.opacity = '0';
+    app.classList.remove('edge-back-panning');
+    app.style.transition = '';
+    app.style.transform = '';
+  };
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) { active = false; return; }
+    const t = e.touches[0];
+    if (t.clientX > EDGE) { active = false; return; }
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') { active = false; return; }
+    if (e.target.isContentEditable) { active = false; return; }
+    if (e.target.closest && e.target.closest('.lightbox.show')) { active = false; return; }
+    if (pageStack.length === 0) { active = false; return; }
+    active = true;
+    moved = false;
+    startX = t.clientX;
+    startY = t.clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!active) return;
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    if (Math.abs(dy) > SLOP || dx < -10) { active = false; return; }
+    if (dx > 5) {
+      if (!moved) { moved = true; app.classList.add('edge-back-panning'); }
+      const screenW = window.innerWidth;
+      const displayDx = Math.min(dx * 0.55, screenW * 0.45);
+      app.style.transform = `translateX(${displayDx}px)`;
+      if (ind) ind.style.opacity = String(Math.min(dx / 80, 1));
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (!active) return;
+    active = false;
+    if (!moved) { clear(); return; }
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const screenW = window.innerWidth;
+    const go = dx > screenW * 0.32;
+    if (go) {
+      app.style.transition = 'transform 0.22s ease-out';
+      app.style.transform = `translateX(${screenW}px)`;
+      if (ind) ind.style.opacity = '0';
+      setTimeout(() => {
+        goBack();
+        app.style.transition = 'none';
+        app.style.transform = '';
+        void app.offsetWidth;
+        app.classList.remove('edge-back-panning');
+        app.style.transition = '';
+      }, 200);
+    } else {
+      app.style.transition = 'transform 0.28s ease-out';
+      app.style.transform = '';
+      if (ind) ind.style.opacity = '0';
+      setTimeout(() => {
+        app.style.transition = '';
+        app.classList.remove('edge-back-panning');
+      }, 280);
+    }
+  }, { passive: true });
+  document.addEventListener('touchcancel', () => { clear(); }, { passive: true });
 }
 
 // iOS 26 液态玻璃水滴：监听所有 .switch 的状态变化，触发水滴展开动画
