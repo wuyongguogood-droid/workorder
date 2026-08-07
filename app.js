@@ -1439,11 +1439,11 @@ async function regenerateReview() {
        created: Date.now(),
        task: Object.assign({}, state.lastTask, { cardDataUrl: state.lastCardDataUrl }),
        review: {
-         text: state.lastReview.text,
-         image: state.lastReview.image,
-         summary: state.lastReview.summary,
-         target: state.lastReview.target
-       }
+        text: state.lastReview.text,
+        images: state.lastReview.images || (state.lastReview.image ? [state.lastReview.image] : []),
+        summary: state.lastReview.summary,
+        target: state.lastReview.target
+      }
      };
      const dataUrl = await uploadToPaste(payload);
     const base = (state.settings.baseUrl || '').replace(/\/+$/, '');
