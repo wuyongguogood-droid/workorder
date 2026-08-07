@@ -968,7 +968,15 @@ function stepLen(delta) {
  /* ===== Form B: Review ===== */
 function enterReviewForm() {
   showPage('page-form-review');
+  /* 只清空“任务一次性”内容，保留用户的偏好选项：
+     字数选择 / 关键词 / 语句风格 / 客户身份 / 目标产品（这些是用户偏好，保留上次选择） */
   state.reviewImages = [];
+  const sm = document.getElementById('rev-summary');
+  if (sm) sm.value = '';
+  ['kw-custom-text', 'style-custom-text', 'target-custom-text'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   renderReviewImgs();
   bindReviewInputs();
   bindStyleIntensities();
@@ -1438,12 +1446,17 @@ async function regenerateReview() {
        }
      };
      const dataUrl = await uploadToPaste(payload);
-     const base = (state.settings.baseUrl || '').replace(/\/+$/, '');
-     const viewerUrl = base + '/viewer.html?data=' + encodeURIComponent(dataUrl);
-     await renderQR(viewerUrl);
-     document.getElementById('qr-url-text').textContent = viewerUrl;
-     document.getElementById('dispatch-result').classList.remove('hidden');
-   } catch (e) {
+    const base = (state.settings.baseUrl || '').replace(/\/+$/, '');
+    const viewerUrl = base + '/viewer.html?data=' + encodeURIComponent(dataUrl);
+    await renderQR(viewerUrl);
+    document.getElementById('qr-url-text').textContent = viewerUrl;
+    document.getElementById('dispatch-result').classList.remove('hidden');
+    /* 派发成功：清空 state 中的任务卡 + 评语，仅保留 IndexedDB 历史 */
+    state.lastTask = null;
+    state.lastReview = null;
+    state.lastCardDataUrl = null;
+    refreshHome();
+  } catch (e) {
      console.error(e);
      showToast('上传失败：' + e.message);
      btn.classList.remove('hidden');
@@ -1600,12 +1613,12 @@ async function regenerateReview() {
    const list = document.getElementById('history-review-list');
    list.innerHTML = '';
    const all = await dbGetAll('reviews');
-   const sorted = all.sort((a, b) => b.createdAt - a.createdAt);
-   if (!sorted.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-title">还没有评语</div>生成的评语会出现在这里</div>';
+   const limited = all.sort((a, b) => b.createdAt - a.createdAt).slice(0, 4);
+   if (!limited.length) {
+     list.innerHTML = '<div class="empty"><div class="empty-title">还没有评语</div>生成的评语会出现在这里</div>';
      return;
    }
-   sorted.forEach(r => {
+   limited.forEach(r => {
      const item = document.createElement('div');
      item.className = 'history-item';
      const thumb = r.image || '';
@@ -1619,15 +1632,16 @@ async function regenerateReview() {
        '<div class="h-sub">' + escapeHtml(r.target || '未指定产品') + '</div>' +
        '<div class="h-time">' + time + '</div>' +
        '</div>';
-   item.onclick = () => {
-     state.lastReview = r;
-     document.getElementById('review-text-content').textContent = r.text;
-     onReviewEdit(r.text);
-     showPageReplace('page-result-review');
-   };
+     item.onclick = () => {
+       state.lastReview = r;
+       document.getElementById('review-text-content').textContent = r.text;
+       onReviewEdit(r.text);
+       showPageReplace('page-result-review');
+     };
      list.appendChild(item);
    });
  }
+
  
  /* ===== Data management ===== */
  async function confirmClearHistory() {
