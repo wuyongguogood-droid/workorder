@@ -1,5 +1,5 @@
-const CACHE = 'workorder-v1.3.3';
-const BUILD = '2026-08-07-keyboard';
+const CACHE = 'workorder-v1.3.4';
+const BUILD = '2026-08-07-no-html-cache';
 const ASSETS = [
   './',
   './index.html',
@@ -35,6 +35,24 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  // HTML 走 network-first：保证新版本立即生效，断网时回退缓存
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // 其他资源（JS / CSS / icons）走 cache-first
   e.respondWith(
     caches.match(req).then((cached) => {
       const fetchPromise = fetch(req)
