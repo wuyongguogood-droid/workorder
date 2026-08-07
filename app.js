@@ -1520,11 +1520,17 @@ async function regenerateReview() {
  }
  
  async function saveQRImg() {
-   const canvas = document.querySelector('#qr-canvas canvas');
-   if (!canvas) { showToast('暂无二维码'); return; }
-   const url = canvas.toDataURL('image/png');
-   downloadDataURL(url, 'dispatch-qr-' + Date.now() + '.png');
- }
+  const canvas = document.querySelector('#qr-canvas canvas');
+  if (!canvas) { showToast('暂无二维码'); return; }
+  try {
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('生成失败');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    showToast('二维码已复制，去微信长按粘贴');
+  } catch (e) {
+    showToast('复制失败：' + (e.message || '请用长按保存'));
+  }
+}
  
  async function copyQRUrl() {
    const t = document.getElementById('qr-url-text').textContent;

@@ -1567,3 +1567,10 @@ input[type=number] { -moz-appearance: textfield; }
 body.kb-up .action-bar {
   transform: translateY(var(--kb-offset, 0px));
 }
+#qr-canvas canvas {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: default;
+  display: block;
+  margin: 0 auto;
+}
