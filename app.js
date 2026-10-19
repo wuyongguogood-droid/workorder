@@ -62,7 +62,8 @@
    apiKey: '',
    baseUrl: '',
    pasteUrl: 'https://catbox.moe/user/api.php',
-   githubToken: ''
+  githubToken: '',
+  githubRepo: 'wuyongguogood-droid/workorder'
  };
  
  /* ===== App state ===== */
@@ -204,6 +205,7 @@
    document.getElementById('setting-base-url').value = map.baseUrl || '';
    document.getElementById('setting-paste-url').value = map.pasteUrl || DEFAULT_SETTINGS.pasteUrl;
    document.getElementById('setting-github-token').value = map.githubToken || '';
+  document.getElementById('setting-github-repo').value = map.githubRepo || DEFAULT_SETTINGS.githubRepo;
  }
 
  async function saveSettings() {
@@ -213,7 +215,8 @@
      apiKey: document.getElementById('setting-api-key').value.trim(),
      baseUrl: document.getElementById('setting-base-url').value.trim().replace(/\/+$/, ''),
      pasteUrl: document.getElementById('setting-paste-url').value.trim() || DEFAULT_SETTINGS.pasteUrl,
-     githubToken: document.getElementById('setting-github-token').value.trim()
+    githubToken: document.getElementById('setting-github-token').value.trim(),
+    githubRepo: document.getElementById('setting-github-repo').value.trim() || DEFAULT_SETTINGS.githubRepo
    };
    await dbPut('settings', { key: 'apiBase', value: map.apiBase });
    await dbPut('settings', { key: 'model', value: map.model });
@@ -221,6 +224,7 @@
    await dbPut('settings', { key: 'baseUrl', value: map.baseUrl });
    await dbPut('settings', { key: 'pasteUrl', value: map.pasteUrl });
    await dbPut('settings', { key: 'githubToken', value: map.githubToken });
+  await dbPut('settings', { key: 'githubRepo', value: map.githubRepo });
    state.settings = map;
    showToast('已保存');
  }
@@ -1467,8 +1471,9 @@ async function regenerateReview() {
  
  async function uploadToPaste(payload) {
    const token = (state.settings && state.settings.githubToken) || '';
-   if (token) {
-     return await uploadToGist(payload, token);
+  const repo = (state.settings && state.settings.githubRepo) || DEFAULT_SETTINGS.githubRepo;
+  if (token && repo) {
+    return await uploadToRepo(payload, token, repo);
    }
    const url = (state.settings && state.settings.pasteUrl) || DEFAULT_SETTINGS.pasteUrl;
    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
@@ -1484,31 +1489,41 @@ async function regenerateReview() {
    return (await res.text()).trim();
  }
 
- async function uploadToGist(payload, token) {
-   const res = await fetch('https://api.github.com/gists', {
-     method: 'POST',
+async function uploadToRepo(payload, token, repo) {
+  const [owner, repoName] = repo.split('/').map(s => s.trim());
+  if (!owner || !repoName) throw new Error('GitHub 仓库格式错误，应为 owner/repo');
+  const path = 'data/dispatch-' + Date.now() + '.json';
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repoName}/contents/${path}`,
+    {
+    method: 'PUT',
      headers: {
        'Authorization': 'Bearer ' + token,
        'Content-Type': 'application/json',
        'Accept': 'application/vnd.github+json'
      },
      body: JSON.stringify({
-       description: 'workorder-dispatch-' + Date.now(),
-       public: true,
-       files: {
-         'data.json': { content: JSON.stringify(payload) }
-       }
+      message: 'workorder-dispatch-' + Date.now(),
+      content: content,
+      branch: 'main'
      })
-   });
+  }
+  );
    if (!res.ok) {
      const t = await res.text();
-     throw new Error(res.status + ' ' + t.slice(0, 120));
+    throw new Error(res.status + ' ' + t.slice(0, 160));
    }
    const data = await res.json();
-   if (!data.files || !data.files['data.json'] || !data.files['data.json'].raw_url) {
-     throw new Error('Gist 返回异常');
-   }
-   return data.files['data.json'].raw_url;
+  const raw = data.content && data.content.download_url;
+  if (!raw) throw new Error('GitHub 上传返回异常');
+  /* 优先用 raw.githubusercontent.com，另附 jsDelivr 镜像备用 */
+  const mirrors = [raw];
+  const m = raw.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/(.+?)\/(data\/.*)$/);
+  if (m) {
+    mirrors.push(`https://cdn.jsdelivr.net/gh/${m[1]}/${m[2]}@${m[3]}/${m[4]}`);
+  }
+  return mirrors.join('||');
  }
  
  async function renderQR(text) {

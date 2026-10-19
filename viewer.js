@@ -278,9 +278,19 @@ function copyReviewImgAt(i) {
 
    let payload;
    try {
-     const res = await fetch(dataUrl);
-     if (!res.ok) throw new Error('HTTP ' + res.status);
-     payload = await res.json();
+     const candidates = dataUrl.split('||').filter(Boolean);
+     let lastErr = null;
+     for (const url of candidates) {
+       try {
+         const res = await fetch(url);
+         if (!res.ok) throw new Error('HTTP ' + res.status);
+         payload = await res.json();
+         break;
+       } catch (e) {
+         lastErr = e;
+       }
+     }
+     if (!payload) throw (lastErr || new Error('加载失败'));
    } catch (e) {
      console.error(e);
      showError('加载失败：' + e.message);
