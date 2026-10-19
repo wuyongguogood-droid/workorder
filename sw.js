@@ -1,5 +1,5 @@
-const CACHE = 'workorder-v1.3.7';
-const BUILD = '2026-10-19-repourl';
+const CACHE = 'workorder-v1.3.8';
+const BUILD = '2026-10-19-bootcdn';
 const ASSETS = [
   './',
   './index.html',
