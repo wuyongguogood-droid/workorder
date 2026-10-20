@@ -1,5 +1,5 @@
-const CACHE = 'workorder-v1.3.9';
-const BUILD = '2026-10-19-locallib';
+const CACHE = 'workorder-v1.4.0';
+const BUILD = '2026-10-20-cloudbase';
 const ASSETS = [
   './',
   './index.html',

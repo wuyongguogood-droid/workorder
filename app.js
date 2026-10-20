@@ -64,6 +64,8 @@
    pasteUrl: 'https://catbox.moe/user/api.php',
   githubToken: '',
   githubRepo: 'wuyongguogood-droid/workorder'
+  ,
+  cloudbaseEnv: 'my-workorder-d5g01wydcbd24f1c0-1464124081'
  };
  
  /* ===== App state ===== */
@@ -217,6 +219,8 @@
      pasteUrl: document.getElementById('setting-paste-url').value.trim() || DEFAULT_SETTINGS.pasteUrl,
     githubToken: document.getElementById('setting-github-token').value.trim(),
     githubRepo: document.getElementById('setting-github-repo').value.trim() || DEFAULT_SETTINGS.githubRepo
+    ,
+    cloudbaseEnv: document.getElementById('setting-cloudbase-env').value.trim() || DEFAULT_SETTINGS.cloudbaseEnv
    };
    await dbPut('settings', { key: 'apiBase', value: map.apiBase });
    await dbPut('settings', { key: 'model', value: map.model });
@@ -225,6 +229,7 @@
    await dbPut('settings', { key: 'pasteUrl', value: map.pasteUrl });
    await dbPut('settings', { key: 'githubToken', value: map.githubToken });
   await dbPut('settings', { key: 'githubRepo', value: map.githubRepo });
+  await dbPut('settings', { key: 'cloudbaseEnv', value: map.cloudbaseEnv });
    state.settings = map;
    showToast('已保存');
  }
@@ -244,6 +249,7 @@ let isNavigating = false;
 
 function showPage(id) {
   showPageTo(id, false);
+  document.getElementById('setting-cloudbase-env').value = map.cloudbaseEnv || DEFAULT_SETTINGS.cloudbaseEnv;
 }
 function showPageReplace(id) {
   showPageTo(id, true);
@@ -1470,11 +1476,19 @@ async function regenerateReview() {
  }
  
  async function uploadToPaste(payload) {
-   const token = (state.settings && state.settings.githubToken) || '';
+  const envId = (state.settings && state.settings.cloudbaseEnv) || DEFAULT_SETTINGS.cloudbaseEnv;
+  if (envId && window.tcb) {
+    try {
+      return await uploadToCloudBase(payload);
+    } catch (e) {
+      console.warn('CloudBase 上传失败，回退 GitHub/catbox：', e);
+    }
+  }
+  const token = (state.settings && state.settings.githubToken) || '';
   const repo = (state.settings && state.settings.githubRepo) || DEFAULT_SETTINGS.githubRepo;
   if (token && repo) {
     return await uploadToRepo(payload, token, repo);
-   }
+  }
    const url = (state.settings && state.settings.pasteUrl) || DEFAULT_SETTINGS.pasteUrl;
    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
    const file = new File([blob], 'task-' + Date.now() + '.json', { type: 'application/json' });
@@ -1488,6 +1502,35 @@ async function regenerateReview() {
    }
    return (await res.text()).trim();
  }
+
+async function uploadToCloudBase(payload) {
+  const envId = (state.settings && state.settings.cloudbaseEnv) || DEFAULT_SETTINGS.cloudbaseEnv;
+  if (!envId) throw new Error('未配置 CloudBase 环境 ID');
+  if (!window.tcb) throw new Error('CloudBase SDK 未加载');
+  
+  const app = tcb.init({ env: envId });
+  const auth = app.auth();
+  await auth.anonymousAuthProvider().signIn();
+  
+  const fileName = 'dispatch-' + Date.now() + '.json';
+  const file = new File([JSON.stringify(payload)], fileName, { type: 'application/json' });
+  
+  const uploadRes = await app.uploadFile({
+    cloudPath: 'data/' + fileName,
+    filePath: file
+  });
+  
+  if (!uploadRes || !uploadRes.fileID) throw new Error('CloudBase 上传返回异常');
+  
+  const urlRes = await app.getTempFileURL({
+    fileList: [{ fileID: uploadRes.fileID, maxAge: 86400 }]
+  });
+  
+  const tempUrl = urlRes && urlRes.fileList && urlRes.fileList[0] && urlRes.fileList[0].tempFileURL;
+  if (!tempUrl) throw new Error('获取 CloudBase 下载链接失败');
+  
+  return tempUrl;
+}
 
 async function uploadToRepo(payload, token, repo) {
   const [owner, repoName] = repo.split('/').map(s => s.trim());
