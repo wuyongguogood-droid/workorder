@@ -1466,6 +1466,9 @@ async function regenerateReview() {
     state.lastTask = null;
     state.lastReview = null;
     state.lastCardDataUrl = null;
+    state.cover = null;
+    state.skuImage = null;
+    state.reviewImages = [];
     refreshHome();
   } catch (e) {
      console.error(e);
