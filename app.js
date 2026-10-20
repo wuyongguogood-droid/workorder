@@ -73,6 +73,7 @@
    cover: null,
    skuImage: null,
    reviewImage: null,
+  reviewImages: [],
    skuText: '',
    actionCustomText: '',
    priceValue: null,
@@ -1290,7 +1291,7 @@ function randomTarget() {
      const text = await callLLM(prompt);
      state.lastReview = {
        summary, length, kws, styles, identity, target,
-       text, images: state.reviewImages.map(c => c.dataUrl),
+       text, images: (state.reviewImages || []).map(c => c.dataUrl),
        createdAt: Date.now()
      };
     await dbAdd('reviews', Object.assign({}, state.lastReview));
